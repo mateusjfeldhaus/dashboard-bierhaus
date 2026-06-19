@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink } from "../../api/client";
+import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
 
@@ -22,6 +23,7 @@ export const DrinkPage = () => {
   const location = useLocation();
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
 
+  const isAdmin = useIsAdmin();
   const locState = location.state as { fromTab?: string; custoState?: object } | null;
   const fromTab = locState?.fromTab;
 
@@ -48,7 +50,7 @@ export const DrinkPage = () => {
     <StyledDrinkPage>
       <div className="top-bar">
         <button className="back-btn" onClick={handleBack}>Voltar</button>
-        <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>
+        {isAdmin && <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>}
       </div>
 
       <div className="drink-header">
