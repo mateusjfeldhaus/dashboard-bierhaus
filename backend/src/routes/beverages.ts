@@ -7,10 +7,10 @@ const router = Router();
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const rows = await query(
-      "SELECT name, price::float, quantity::float, date_of_purchase FROM beverages ORDER BY name"
+      "SELECT name, price::float, quantity::float, date_of_purchase, abv::float FROM beverages ORDER BY name"
     );
     res.json(rows);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Erro ao buscar beverages" });
   }
 });
@@ -31,8 +31,29 @@ router.put("/:name/price", async (req: Request, res: Response) => {
     );
     if (!rows.length) return res.status(404).json({ error: "Ingrediente nao encontrado" });
     res.json(rows[0]);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Erro ao atualizar preco" });
+  }
+});
+
+// PUT /api/beverages/:name/abv
+router.put("/:name/abv", async (req: Request, res: Response) => {
+  const name = decodeURIComponent(req.params.name);
+  const { abv } = req.body as { abv: number };
+
+  if (typeof abv !== "number" || abv < 0 || abv > 1) {
+    return res.status(400).json({ error: "ABV invalido (deve ser entre 0 e 1)" });
+  }
+
+  try {
+    const rows = await query(
+      "UPDATE beverages SET abv = $1 WHERE name = $2 RETURNING name, abv::float",
+      [abv, name]
+    );
+    if (!rows.length) return res.status(404).json({ error: "Ingrediente nao encontrado" });
+    res.json(rows[0]);
+  } catch {
+    res.status(500).json({ error: "Erro ao atualizar ABV" });
   }
 });
 

@@ -20,5 +20,10 @@ export function useBeverages() {
     await fetchBeverages();
   }, [fetchBeverages]);
 
-  return { beverages, loading, updatePrice };
+  const updateAbv = useCallback(async (name: string, abv: number) => {
+    await api.beverages.updateAbv(name, abv);
+    await fetchBeverages();
+  }, [fetchBeverages]);
+
+  return { beverages, loading, updatePrice, updateAbv };
 }

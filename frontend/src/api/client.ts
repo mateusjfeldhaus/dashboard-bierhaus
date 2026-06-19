@@ -28,6 +28,7 @@ export interface Beverage {
   price: number;
   quantity: number;
   date_of_purchase: string | null;
+  abv: number; // 0–1, ex: 0.40 = 40%
 }
 
 export const api = {
@@ -47,6 +48,12 @@ export const api = {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ price }),
+      }),
+    updateAbv: (name: string, abv: number) =>
+      apiFetch<Beverage>(`/api/beverages/${encodeURIComponent(name)}/abv`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ abv }),
       }),
   },
   utils: {
