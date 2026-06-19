@@ -7,21 +7,38 @@ export const StyledDrinkPage = styled.article`
   padding: 1.25rem 1rem 6rem;
   color: ${theme.colors.primary};
 
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+
   .back-btn {
-    display: inline-block;
     color: ${theme.colors.primary};
     font-size: 0.9rem;
     opacity: 0.65;
-    margin-bottom: 1.75rem;
     cursor: pointer;
     background: none;
     border: none;
     padding: 0;
     transition: opacity 0.15s;
+    font-family: inherit;
+
+    &:hover { opacity: 1; }
   }
 
-  .back-btn:hover {
-    opacity: 1;
+  .edit-btn {
+    color: ${theme.colors.primary};
+    font-size: 0.8rem;
+    opacity: 0.35;
+    text-decoration: none;
+    border: 1px solid rgba(255, 208, 110, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.8; }
   }
 
   .drink-header {

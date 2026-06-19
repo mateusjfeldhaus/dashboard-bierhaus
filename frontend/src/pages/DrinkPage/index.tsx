@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink } from "../../api/client";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
@@ -46,9 +46,10 @@ export const DrinkPage = () => {
 
   return (
     <StyledDrinkPage>
-      <button className="back-btn" onClick={handleBack}>
-        Voltar
-      </button>
+      <div className="top-bar">
+        <button className="back-btn" onClick={handleBack}>Voltar</button>
+        <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>
+      </div>
 
       <div className="drink-header">
         <h1>{drink.name}</h1>
@@ -63,7 +64,6 @@ export const DrinkPage = () => {
         {drink.img.length > 0 && (
           <div className="images">
             {drink.img.map((src, i) => {
-              const filename = src.split("/").pop();
               return (
                 <img
                   key={i}

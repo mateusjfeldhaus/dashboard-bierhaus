@@ -145,3 +145,41 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erro ao criar drink" });
   }
 });
+
+// PUT /api/drinks/:name — atualiza drink existente
+router.put("/:name", async (req: Request, res: Response) => {
+  const name = decodeURIComponent(req.params.name);
+  const { types, recipe, images, ingredients, hidden } = req.body;
+  try {
+    const existing = await query("SELECT name FROM drinks WHERE name = $1", [name]);
+    if (!existing.length) return res.status(404).json({ error: "Drink nao encontrado" });
+
+    await query(
+      `UPDATE drinks SET
+        types    = COALESCE($1, types),
+        recipe   = COALESCE($2, recipe),
+        images   = COALESCE($3, images),
+        hidden   = COALESCE($4, hidden)
+       WHERE name = $5`,
+      [types ?? null, recipe ?? null, images ?? null, hidden ?? null, name]
+    );
+
+    if (ingredients) {
+      await query("DELETE FROM drink_ingredients WHERE drink_name = $1", [name]);
+      for (const ing of ingredients) {
+        await query(
+          "INSERT INTO drink_ingredients (drink_name, ingredient_name, quantity) VALUES ($1, $2, $3)",
+          [name, ing.name, ing.quantity]
+        );
+      }
+    }
+
+    const drinks = await query(
+      "SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1", [name]
+    );
+    const ingMap = await fetchIngredients([name]);
+    res.json(mapDrink(drinks[0], ingMap[name] ?? []));
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao atualizar drink" });
+  }
+});

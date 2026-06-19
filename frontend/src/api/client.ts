@@ -78,3 +78,20 @@ export const createDrink = async (drink: {
     body: JSON.stringify(drink),
   });
 };
+
+export const updateDrink = async (
+  originalName: string,
+  data: Partial<{
+    types: string[];
+    recipe: string;
+    images: string[];
+    ingredients: { name: string; quantity: string }[];
+    hidden: boolean;
+  }>
+): Promise<Drink> => {
+  return apiFetch<Drink>(`/api/drinks/${encodeURIComponent(originalName)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+};
