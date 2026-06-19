@@ -22,10 +22,11 @@ export const DrinkPage = () => {
   const location = useLocation();
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
 
-  const fromTab = (location.state as { fromTab?: string } | null)?.fromTab;
+  const locState = location.state as { fromTab?: string; custoState?: object } | null;
+  const fromTab = locState?.fromTab;
 
   const handleBack = () => {
-    if (fromTab) navigate("/utils", { state: { tab: fromTab } });
+    if (fromTab) navigate("/utils", { state: { tab: fromTab, custoState: locState?.custoState } });
     else navigate(-1);
   };
 

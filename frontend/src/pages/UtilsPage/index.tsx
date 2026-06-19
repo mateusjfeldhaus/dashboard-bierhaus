@@ -18,14 +18,25 @@ import {
 
 type Tab = "ingrediente" | "custo" | "resumo";
 
+interface CustoState {
+  drinkQuery: string;
+  drinkCost: { name: string; cost: number | null | undefined } | null;
+  showAllPrices: boolean;
+  allPrices: { name: string; price: number }[];
+}
+
 export const UtilsPage = () => {
   const { allDrinks, filterDrinksByIngredient, costPerDrink, sumOfIngredients } =
     useContext(DrinkContext);
   const { beverages } = useBeverages();
   const location = useLocation();
 
-  const initialTab: Tab =
-    (location.state as { tab?: Tab } | null)?.tab ?? "ingrediente";
+  const locState = location.state as {
+    tab?: Tab;
+    custoState?: CustoState;
+  } | null;
+
+  const initialTab: Tab = locState?.tab ?? "ingrediente";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   // Tab: Por Ingrediente
@@ -40,14 +51,23 @@ export const UtilsPage = () => {
     setIngredientSearched(true);
   };
 
-  // Tab: Custo
-  const [drinkQuery, setDrinkQuery] = useState("");
+  // Tab: Custo — restaura estado anterior se voltou de um drink
+  const [drinkQuery, setDrinkQuery] = useState(locState?.custoState?.drinkQuery ?? "");
   const [drinkCost, setDrinkCost] = useState<{
     name: string;
     cost: number | null | undefined;
-  } | null>(null);
-  const [showAllPrices, setShowAllPrices] = useState(false);
-  const [allPrices, setAllPrices] = useState<{ name: string; price: number }[]>([]);
+  } | null>(locState?.custoState?.drinkCost ?? null);
+  const [showAllPrices, setShowAllPrices] = useState(locState?.custoState?.showAllPrices ?? false);
+  const [allPrices, setAllPrices] = useState<{ name: string; price: number }[]>(
+    locState?.custoState?.allPrices ?? []
+  );
+
+  const getCustoState = (): CustoState => ({
+    drinkQuery,
+    drinkCost,
+    showAllPrices,
+    allPrices,
+  });
 
   const handleDrinkCostSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,22 +113,13 @@ export const UtilsPage = () => {
   return (
     <StyledUtilsPage>
       <StyledTabs>
-        <StyledTab
-          $active={activeTab === "ingrediente"}
-          onClick={() => setActiveTab("ingrediente")}
-        >
+        <StyledTab $active={activeTab === "ingrediente"} onClick={() => setActiveTab("ingrediente")}>
           Por Ingrediente
         </StyledTab>
-        <StyledTab
-          $active={activeTab === "custo"}
-          onClick={() => setActiveTab("custo")}
-        >
+        <StyledTab $active={activeTab === "custo"} onClick={() => setActiveTab("custo")}>
           Custo
         </StyledTab>
-        <StyledTab
-          $active={activeTab === "resumo"}
-          onClick={() => setActiveTab("resumo")}
-        >
+        <StyledTab $active={activeTab === "resumo"} onClick={() => setActiveTab("resumo")}>
           Ingredientes
         </StyledTab>
       </StyledTabs>
@@ -126,9 +137,7 @@ export const UtilsPage = () => {
             <button type="submit">Buscar</button>
           </StyledSearchRow>
           {ingredientSearched && ingredientResults.length === 0 && (
-            <StyledEmptyState>
-              Nenhum drink encontrado com este ingrediente.
-            </StyledEmptyState>
+            <StyledEmptyState>Nenhum drink encontrado com este ingrediente.</StyledEmptyState>
           )}
         </StyledTabPanel>
       )}
@@ -148,15 +157,17 @@ export const UtilsPage = () => {
 
           {drinkCost && (
             <StyledSingleResult>
-              <Link className="drink-name" to={`/drink/${encodeURIComponent(drinkCost.name)}`} state={{ fromTab: "custo" }}>{drinkCost.name}</Link>
+              <Link
+                className="drink-name"
+                to={`/drink/${encodeURIComponent(drinkCost.name)}`}
+                state={{ fromTab: "custo", custoState: getCustoState() }}
+              >
+                {drinkCost.name}
+              </Link>
               {drinkCost.cost == null ? (
-                <div className="cost-note">
-                  Drink nao encontrado ou ingredientes sem preco cadastrado.
-                </div>
+                <div className="cost-note">Drink nao encontrado ou ingredientes sem preco cadastrado.</div>
               ) : drinkCost.cost === 0 ? (
-                <div className="cost-note">
-                  Nao foi possivel calcular o custo (ingredientes sem preco).
-                </div>
+                <div className="cost-note">Nao foi possivel calcular o custo (ingredientes sem preco).</div>
               ) : (
                 <>
                   <div className="cost">R$ {drinkCost.cost.toFixed(2)}</div>
@@ -167,13 +178,16 @@ export const UtilsPage = () => {
           )}
 
           {!showAllPrices ? (
-            <StyledShowAllBtn onClick={handleShowAllPrices}>
-              Ver todos os precos
-            </StyledShowAllBtn>
+            <StyledShowAllBtn onClick={handleShowAllPrices}>Ver todos os precos</StyledShowAllBtn>
           ) : (
             <StyledResultList>
               {allPrices.map((item) => (
-                <StyledResultItem key={item.name} as={Link} to={`/drink/${encodeURIComponent(item.name)}`} state={{ fromTab: "custo" }}>
+                <StyledResultItem
+                  key={item.name}
+                  as={Link}
+                  to={`/drink/${encodeURIComponent(item.name)}`}
+                  state={{ fromTab: "custo", custoState: getCustoState() }}
+                >
                   <span className="name">{item.name}</span>
                   {item.price > 0 ? (
                     <span className="value">R$ {item.price.toFixed(2)}</span>
