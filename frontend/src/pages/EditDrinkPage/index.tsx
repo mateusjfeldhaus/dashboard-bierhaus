@@ -5,8 +5,8 @@ import { UnitSelect } from "../../components/UnitSelect";
 import { CATEGORY_TYPES } from "../../constants/categories";
 import {
   StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
-  StyledInput, StyledTextarea, StyledCategoryGrid, StyledCategoryChip,
-  StyledIngredientRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
+  StyledInput, StyledCategoryGrid, StyledCategoryChip,
+  StyledIngredientRow, StyledStepRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
   StyledSubmitBtn, StyledError, StyledSuccess,
 } from "../NovoDrinkPage/style";
 
@@ -18,7 +18,7 @@ export const EditDrinkPage = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [types, setTypes] = useState<string[]>([]);
-  const [recipe, setRecipe] = useState("");
+  const [steps, setSteps] = useState<string[]>([""]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -35,7 +35,8 @@ export const EditDrinkPage = () => {
     if (!name) return;
     api.drinks.get(decoded).then((drink) => {
       setTypes(drink.type);
-      setRecipe(drink.recipe);
+      const parsed = drink.recipe.split("\n").filter((s) => s.trim());
+      setSteps(parsed.length ? parsed : [""]);
       setIngredients(
         drink.ingredients.length
           ? drink.ingredients.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit ?? "ml" }))
@@ -55,6 +56,11 @@ export const EditDrinkPage = () => {
 
   const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "ml" }]);
   const removeIngredient = (i: number) => setIngredients((prev) => prev.filter((_, idx) => idx !== i));
+
+  const updateStep = (i: number, value: string) =>
+    setSteps((prev) => prev.map((s, idx) => idx === i ? value : s));
+  const addStep = () => setSteps((prev) => [...prev, ""]);
+  const removeStep = (i: number) => setSteps((prev) => prev.filter((_, idx) => idx !== i));
 
   const removeExistingImage = (i: number) => setExistingImages((prev) => prev.filter((_, idx) => idx !== i));
 
@@ -78,7 +84,8 @@ export const EditDrinkPage = () => {
         setUploading(false);
       }
       const images = [...existingImages, ...uploadedUrls];
-      await updateDrink(decoded, { types, recipe, images, ingredients: validIngredients });
+      const validSteps = steps.filter((s) => s.trim());
+      await updateDrink(decoded, { types, recipe: validSteps.join("\n"), images, ingredients: validIngredients });
       setSuccess(true);
       setTimeout(() => navigate(`/drink/${encodeURIComponent(decoded)}`), 1500);
     } catch {
@@ -123,8 +130,22 @@ export const EditDrinkPage = () => {
         </StyledSection>
 
         <StyledSection>
-          <StyledLabel>Receita</StyledLabel>
-          <StyledTextarea rows={5} value={recipe} onChange={(e) => setRecipe(e.target.value)} />
+          <StyledLabel>Receita (passos)</StyledLabel>
+          {steps.map((step, i) => (
+            <StyledStepRow key={i}>
+              <span className="step-number">{i + 1}</span>
+              <StyledInput
+                type="text"
+                placeholder={i === 0 ? "Ex: Adicionar gelo ao copo" : "Próximo passo..."}
+                value={step}
+                onChange={(e) => updateStep(i, e.target.value)}
+              />
+              {steps.length > 1 && (
+                <StyledRemoveBtn type="button" onClick={() => removeStep(i)}>✕</StyledRemoveBtn>
+              )}
+            </StyledStepRow>
+          ))}
+          <StyledAddBtn type="button" onClick={addStep}>+ Passo</StyledAddBtn>
         </StyledSection>
 
         <StyledSection>

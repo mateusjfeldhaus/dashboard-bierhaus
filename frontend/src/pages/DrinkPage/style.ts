@@ -186,4 +186,36 @@ export const StyledDrinkPage = styled.article`
     line-height: 1.7;
     opacity: 0.9;
   }
+
+  .recipe-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    list-style: none;
+    counter-reset: step-counter;
+  }
+
+  .recipe-steps li {
+    font-size: 1rem;
+    line-height: 1.6;
+    padding-left: 2.5rem;
+    position: relative;
+    counter-increment: step-counter;
+  }
+
+  .recipe-steps li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    line-height: 1.6rem;
+    text-align: center;
+    border: 1px solid rgba(255, 208, 110, 0.3);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    opacity: 0.55;
+    top: 0.1rem;
+  }
 `;

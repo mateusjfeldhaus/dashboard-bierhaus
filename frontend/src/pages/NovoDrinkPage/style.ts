@@ -98,6 +98,21 @@ export const StyledIngredientRow = styled.div`
   align-items: flex-end;
 `;
 
+export const StyledStepRow = styled.div`
+  display: grid;
+  grid-template-columns: 24px 1fr 24px;
+  gap: 0.75rem;
+  align-items: flex-end;
+
+  .step-number {
+    font-size: 0.75rem;
+    opacity: 0.3;
+    font-weight: 700;
+    padding-bottom: 0.55rem;
+    text-align: right;
+  }
+`;
+
 export const StyledAddBtn = styled.button`
   background: none;
   border: 1px dashed rgba(255, 208, 110, 0.2);

@@ -5,8 +5,8 @@ import { UnitSelect } from "../../components/UnitSelect";
 import { CATEGORY_TYPES } from "../../constants/categories";
 import {
   StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
-  StyledInput, StyledTextarea, StyledCategoryGrid, StyledCategoryChip,
-  StyledIngredientRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
+  StyledInput, StyledCategoryGrid, StyledCategoryChip,
+  StyledIngredientRow, StyledStepRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
   StyledSubmitBtn, StyledError, StyledSuccess,
 } from "./style";
 
@@ -19,7 +19,7 @@ export const NovoDrinkPage = () => {
 
   const [name, setName] = useState("");
   const [types, setTypes] = useState<string[]>([]);
-  const [recipe, setRecipe] = useState("");
+  const [steps, setSteps] = useState<string[]>([""]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", quantity: "", unit: "ml" }]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -36,6 +36,11 @@ export const NovoDrinkPage = () => {
 
   const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "ml" }]);
   const removeIngredient = (i: number) => setIngredients((prev) => prev.filter((_, idx) => idx !== i));
+
+  const updateStep = (i: number, value: string) =>
+    setSteps((prev) => prev.map((s, idx) => idx === i ? value : s));
+  const addStep = () => setSteps((prev) => [...prev, ""]);
+  const removeStep = (i: number) => setSteps((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -54,7 +59,8 @@ export const NovoDrinkPage = () => {
     setError(null);
     if (!name.trim()) return setError("Nome do drink é obrigatório.");
     if (!types.length) return setError("Selecione pelo menos uma categoria.");
-    if (!recipe.trim()) return setError("Receita é obrigatória.");
+    const validSteps = steps.filter((s) => s.trim());
+    if (!validSteps.length) return setError("Adicione pelo menos um passo na receita.");
     const validIngredients = ingredients.filter((i) => i.name.trim() && i.quantity.trim());
     if (!validIngredients.length) return setError("Adicione pelo menos um ingrediente.");
 
@@ -66,7 +72,7 @@ export const NovoDrinkPage = () => {
         images = await Promise.all(imageFiles.map((f) => uploadImage(f)));
         setUploading(false);
       }
-      await createDrink({ name: name.trim(), types, recipe: recipe.trim(), images, ingredients: validIngredients });
+      await createDrink({ name: name.trim(), types, recipe: validSteps.join("\n"), images, ingredients: validIngredients });
       setSuccess(true);
       setTimeout(() => navigate(`/drink/${encodeURIComponent(name.trim())}`), 1500);
     } catch {
@@ -111,8 +117,22 @@ export const NovoDrinkPage = () => {
         </StyledSection>
 
         <StyledSection>
-          <StyledLabel>Receita</StyledLabel>
-          <StyledTextarea rows={5} value={recipe} onChange={(e) => setRecipe(e.target.value)} placeholder="Modo de preparo..." />
+          <StyledLabel>Receita (passos)</StyledLabel>
+          {steps.map((step, i) => (
+            <StyledStepRow key={i}>
+              <span className="step-number">{i + 1}</span>
+              <StyledInput
+                type="text"
+                placeholder={i === 0 ? "Ex: Adicionar gelo ao copo" : "Próximo passo..."}
+                value={step}
+                onChange={(e) => updateStep(i, e.target.value)}
+              />
+              {steps.length > 1 && (
+                <StyledRemoveBtn type="button" onClick={() => removeStep(i)}>✕</StyledRemoveBtn>
+              )}
+            </StyledStepRow>
+          ))}
+          <StyledAddBtn type="button" onClick={addStep}>+ Passo</StyledAddBtn>
         </StyledSection>
 
         <StyledSection>

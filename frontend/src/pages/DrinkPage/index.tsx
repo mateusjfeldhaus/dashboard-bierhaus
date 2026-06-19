@@ -84,7 +84,11 @@ export const DrinkPage = () => {
           </section>
           <section>
             <h2>Receita</h2>
-            <p>{drink.recipe}</p>
+            <ol className="recipe-steps">
+              {drink.recipe.split("\n").filter(Boolean).map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
+            </ol>
           </section>
         </div>
       </div>
