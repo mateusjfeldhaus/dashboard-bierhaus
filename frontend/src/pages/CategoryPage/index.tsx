@@ -1,106 +1,42 @@
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
-import { DrinkContext, IDrink, IDrinkContext } from "../../providers/drinksContext";
+import { DrinkContext } from "../../providers/drinksContext";
 import { DrinkList } from "../../components/DrinkList";
 import { StyledDrinkList } from "../../styles/DrinkList";
 import { NotFound } from "../404NotFound";
 
 interface CategoryConfig {
+  type: string;
   label: string;
-  descriptions: string[];
-  getList: (ctx: IDrinkContext) => IDrink[];
+  description: string;
 }
 
-const categories: Record<string, CategoryConfig> = {
-  cachaca: {
-    label: "Cachaca",
-    descriptions: [
-      "A cachaca e uma bebida tradicional brasileira, destilada a partir do caldo de cana-de-acucar. Conhecida por sua versatilidade, e frequentemente usada em coqueteis tropicais e caipirinhas.",
-    ],
-    getList: (ctx) => ctx.cachacaList,
-  },
-  espumante: {
-    label: "Espumante",
-    descriptions: [
-      "Celebrado por suas borbulhas refrescantes, o espumante e um vinho com gas carbonico natural. Elegante e festivo, e ideal para comemoracoes e momentos especiais.",
-    ],
-    getList: (ctx) => ctx.espumanteList,
-  },
-  gin: {
-    label: "Gin",
-    descriptions: [
-      "Um destilado aromatizado com zimbro e uma variedade de botanicos, o gin e conhecido por sua complexidade e versatilidade em coqueteis classicos como o gin tonic.",
-    ],
-    getList: (ctx) => ctx.ginList,
-  },
-  licor: {
-    label: "Licores",
-    descriptions: [
-      "Aperol: Um licor italiano de cor vibrante, amargo e doce ao mesmo tempo. E o ingrediente chave no famoso Aperol Spritz, um simbolo do verao europeu.",
-      "Martini: Um classico entre os coqueteis, geralmente associado ao gin ou vodka e vermute. Elegante e sofisticado.",
-      "Licor 43: Uma bebida espanhola feita com 43 ingredientes naturais como baunilha, citricos e especiarias. Ideal puro ou em coqueteis sofisticados.",
-    ],
-    getList: (ctx) => ctx.licoresList,
-  },
-  alkoholfrei: {
-    label: "Nao Alcoolicos",
-    descriptions: [
-      "Opcoes refrescantes e saborosas para quem prefere ou precisa evitar alcool, elaborados com ingredientes nao alcoolicos sem perder a complexidade e sabor.",
-    ],
-    getList: (ctx) => ctx.alkoholfreiList,
-  },
-  rum: {
-    label: "Rum",
-    descriptions: [
-      "Originario do Caribe, o rum e feito da cana-de-acucar e pode variar de leve e suave a rico e robusto. E a base de coqueteis classicos como o daiquiri e o mojito.",
-    ],
-    getList: (ctx) => ctx.rumList,
-  },
-  sake: {
-    label: "Sake",
-    descriptions: [
-      "A bebida tradicional japonesa, o sake e um vinho de arroz fermentado. Delicado e aromatico, e apreciado tanto puro quanto em coqueteis como o sake martini.",
-    ],
-    getList: (ctx) => ctx.sakeList,
-  },
-  tequila: {
-    label: "Tequila",
-    descriptions: [
-      "Originaria do Mexico, a tequila e destilada da planta de agave azul. Conhecida por sua forca e sabor distintivo, e a base do famoso margarita e outros coqueteis vibrantes.",
-    ],
-    getList: (ctx) => ctx.tequilaList,
-  },
-  vodka: {
-    label: "Vodka",
-    descriptions: [
-      "Uma das bebidas destiladas mais populares, a vodka e famosa por sua pureza e versatilidade. E a base de muitos coqueteis classicos e modernos em todo o mundo.",
-    ],
-    getList: (ctx) => ctx.vodkaList,
-  },
-  whisky: {
-    label: "Whisky",
-    descriptions: [
-      "Um destilado envelhecido, o whisky vem em muitas variedades com perfis de sabor unicos. Apreciado puro, com gelo ou como base de coqueteis robustos.",
-    ],
-    getList: (ctx) => ctx.whiskyList,
-  },
+const CATEGORIES: Record<string, CategoryConfig> = {
+  cachaca:     { type: "Cachaça",         label: "Cachaça",        description: "Bebida tradicional brasileira destilada do caldo de cana-de-açúcar. Versátil e presente nos clássicos tropicais." },
+  espumante:   { type: "Espumante",        label: "Espumante",      description: "Vinho com gás carbônico natural. Elegante e festivo, ideal para comemorações." },
+  gin:         { type: "Gin",              label: "Gin",            description: "Destilado aromatizado com zimbro e botânicos. Base do clássico gin tônica e de inúmeros coquetéis." },
+  licor:       { type: "Licores",          label: "Licores",        description: "Licores e aperitivos que trazem complexidade, doçura e amargor aos coquetéis." },
+  alkoholfrei: { type: "Não Alcoólicos",   label: "Não Alcoólicos", description: "Opções refrescantes e saborosas para quem prefere evitar álcool, sem abrir mão da complexidade." },
+  rum:         { type: "Rum",              label: "Rum",            description: "Destilado caribenho da cana-de-açúcar. Base de clássicos como daiquiri e mojito." },
+  sake:        { type: "Sake",             label: "Sake",           description: "Vinho de arroz fermentado japonês. Delicado e aromático, ótimo puro ou em coquetéis." },
+  tequila:     { type: "Tequila",          label: "Tequila",        description: "Destilado mexicano do agave azul. Presença marcante no margarita e em coquetéis vibrantes." },
+  vodka:       { type: "Vodka",            label: "Vodka",          description: "Destilado de alta pureza e grande versatilidade. Base de inúmeros coquetéis clássicos e modernos." },
+  whisky:      { type: "Whisky",           label: "Whisky",         description: "Destilado envelhecido com perfis únicos de sabor. Ótimo puro, com gelo ou em coquetéis robustos." },
 };
 
 export const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
-  const ctx = useContext(DrinkContext);
+  const { allDrinks } = useContext(DrinkContext);
 
-  const config = categories[category ?? ""];
+  const config = CATEGORIES[category ?? ""];
   if (!config) return <NotFound />;
 
-  const drinks = config.getList(ctx);
+  const drinks = allDrinks.filter((d) => d.type.includes(config.type));
 
   return (
     <>
       <StyledDrinkList>
-        {config.descriptions.map((text, i) => (
-          <p key={i}>{text}</p>
-        ))}
+        <p>{config.description}</p>
       </StyledDrinkList>
       <DrinkList drinks={drinks} />
     </>
