@@ -7,6 +7,7 @@ import { PrecosPage } from "./pages/PrecosPage";
 import { SearchPage } from "./pages/SearchPage";
 import { ContactPage } from "./pages/ContactPage";
 import { IngredientPage } from "./pages/IngredientPage";
+import { NovoDrinkPage } from "./pages/NovoDrinkPage";
 import { NotFound } from "./pages/404NotFound";
 import { PasswordGate } from "./components/PasswordGate";
 
@@ -16,6 +17,7 @@ export const Router = () => {
       <Route path="/" element={<HomePage />} />
       <Route path="/utils" element={<UtilsPage />} />
       <Route path="/precos" element={<PasswordGate><PrecosPage /></PasswordGate>} />
+      <Route path="/novo-drink" element={<PasswordGate><NovoDrinkPage /></PasswordGate>} />
       <Route path="/search" element={<SearchPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/drink/:name" element={<DrinkPage />} />

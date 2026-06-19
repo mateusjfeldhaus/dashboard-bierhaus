@@ -31,6 +31,7 @@ const navLinks = [
 const adminLinks = [
   { path: "/utils", label: "Utilidades" },
   { path: "/precos", label: "Precos" },
+  { path: "/novo-drink", label: "Novo Drink" },
 ];
 
 export const Header = () => {

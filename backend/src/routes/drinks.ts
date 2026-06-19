@@ -110,3 +110,38 @@ router.get("/:name", async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// POST /api/drinks — cria novo drink
+router.post("/", async (req: Request, res: Response) => {
+  const { name, types, recipe, images, ingredients, hidden = false } = req.body;
+  if (!name || !types?.length || !recipe) {
+    return res.status(400).json({ error: "name, types e recipe sao obrigatorios" });
+  }
+  try {
+    await query(
+      `INSERT INTO drinks (name, types, recipe, images, hidden)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (name) DO UPDATE
+       SET types = EXCLUDED.types, recipe = EXCLUDED.recipe,
+           images = EXCLUDED.images, hidden = EXCLUDED.hidden`,
+      [name, types, recipe, images ?? [], hidden]
+    );
+    if (ingredients?.length) {
+      await query("DELETE FROM drink_ingredients WHERE drink_name = $1", [name]);
+      for (const ing of ingredients) {
+        await query(
+          "INSERT INTO drink_ingredients (drink_name, ingredient_name, quantity) VALUES ($1, $2, $3)",
+          [name, ing.name, ing.quantity]
+        );
+      }
+    }
+    const drinks = await query(
+      "SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1",
+      [name]
+    );
+    const ingMap = await fetchIngredients([name]);
+    res.status(201).json(mapDrink(drinks[0], ingMap[name] ?? []));
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao criar drink" });
+  }
+});

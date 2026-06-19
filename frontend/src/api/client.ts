@@ -55,3 +55,26 @@ export const api = {
       apiFetch<{ name: string; cost: number }[]>("/api/utils/costs"),
   },
 };
+
+export const uploadImage = async (file: File): Promise<string> => {
+  const form = new FormData();
+  form.append("image", file);
+  const res = await fetch(`${BASE_URL}/api/upload`, { method: "POST", body: form });
+  if (!res.ok) throw new Error("Erro no upload");
+  const data = await res.json();
+  return data.url as string;
+};
+
+export const createDrink = async (drink: {
+  name: string;
+  types: string[];
+  recipe: string;
+  images: string[];
+  ingredients: { name: string; quantity: string }[];
+}): Promise<Drink> => {
+  return apiFetch<Drink>("/api/drinks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(drink),
+  });
+};
