@@ -96,6 +96,24 @@ export const StyledDrinkPage = styled.article`
     aspect-ratio: 3 / 4;
   }
 
+  .img-placeholder {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 208, 110, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 208, 110, 0.04);
+    color: ${theme.colors.primary};
+    opacity: 0.35;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 1.5rem;
+    letter-spacing: 0.03em;
+  }
+
   @media (min-width: 768px) {
     .images {
       flex-direction: column;
@@ -105,6 +123,10 @@ export const StyledDrinkPage = styled.article`
 
     .images img {
       width: 100%;
+      aspect-ratio: 4 / 5;
+    }
+
+    .img-placeholder {
       aspect-ratio: 4 / 5;
     }
   }

@@ -64,19 +64,14 @@ export const DrinkPage = () => {
       </div>
 
       <div className="drink-body">
-        {drink.img.length > 0 && (
-          <div className="images">
-            {drink.img.map((src, i) => {
-              return (
-                <img
-                  key={i}
-                  src={getImageSrc(src)}
-                  alt={`${drink.name} ${i + 1}`}
-                />
-              );
-            })}
-          </div>
-        )}
+        <div className="images">
+          {drink.img.length > 0
+            ? drink.img.map((src, i) => (
+                <img key={i} src={getImageSrc(src)} alt={`${drink.name} ${i + 1}`} />
+              ))
+            : <div className="img-placeholder">{drink.name}</div>
+          }
+        </div>
 
         <div className="details">
           <section>
