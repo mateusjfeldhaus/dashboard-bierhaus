@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { query } from "../db";
 import { Drink, IngredientUnit } from "../types";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -96,7 +97,7 @@ router.get("/:name", async (req: Request, res: Response) => {
 });
 
 // POST /api/drinks
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", requireAuth, async (req: Request, res: Response) => {
   const { name, types, recipe, images, ingredients, hidden = false } = req.body;
   if (!name || !types?.length || !recipe) {
     return res.status(400).json({ error: "name, types e recipe são obrigatórios" });
@@ -126,7 +127,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // PUT /api/drinks/:name
-router.put("/:name", async (req: Request, res: Response) => {
+router.put("/:name", requireAuth, async (req: Request, res: Response) => {
   const name = decodeURIComponent(req.params.name);
   const { types, recipe, images, ingredients, hidden } = req.body;
   try {

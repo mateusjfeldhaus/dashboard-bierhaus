@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // POST /api/upload
-router.post("/", upload.single("image"), async (req: Request, res: Response) => {
+router.post("/", requireAuth, upload.single("image"), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "Nenhum arquivo enviado" });
 
   try {

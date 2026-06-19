@@ -5,6 +5,7 @@ import drinksRouter from "./routes/drinks";
 import beveragesRouter from "./routes/beverages";
 import utilsRouter from "./routes/utils";
 import uploadRouter from "./routes/upload";
+import authRouter from "./routes/auth";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cors({
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.use("/api/auth", authRouter);
 app.use("/api/drinks", drinksRouter);
 app.use("/api/beverages", beveragesRouter);
 app.use("/api/utils", utilsRouter);

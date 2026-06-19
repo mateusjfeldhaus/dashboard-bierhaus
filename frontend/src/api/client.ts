@@ -1,5 +1,24 @@
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
+const SESSION_KEY = "bierhaus_auth";
+
+export function getToken(): string | null {
+  return sessionStorage.getItem(SESSION_KEY);
+}
+
+export function setToken(token: string) {
+  sessionStorage.setItem(SESSION_KEY, token);
+}
+
+export function clearToken() {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, options);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -28,10 +47,18 @@ export interface Beverage {
   price: number;
   quantity: number;
   date_of_purchase: string | null;
-  abv: number; // 0–1, ex: 0.40 = 40%
+  abv: number;
 }
 
 export const api = {
+  auth: {
+    login: (password: string) =>
+      apiFetch<{ token: string }>("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      }),
+  },
   drinks: {
     list: () => apiFetch<Drink[]>("/api/drinks"),
     get: (name: string) => apiFetch<Drink>(`/api/drinks/${encodeURIComponent(name)}`),
@@ -46,13 +73,13 @@ export const api = {
     updatePrice: (name: string, price: number) =>
       apiFetch<Beverage>(`/api/beverages/${encodeURIComponent(name)}/price`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ price }),
       }),
     updateAbv: (name: string, abv: number) =>
       apiFetch<Beverage>(`/api/beverages/${encodeURIComponent(name)}/abv`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ abv }),
       }),
   },
@@ -69,7 +96,11 @@ export const api = {
 export const uploadImage = async (file: File): Promise<string> => {
   const form = new FormData();
   form.append("image", file);
-  const res = await fetch(`${BASE_URL}/api/upload`, { method: "POST", body: form });
+  const res = await fetch(`${BASE_URL}/api/upload`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: form,
+  });
   if (!res.ok) throw new Error("Erro no upload");
   const data = await res.json();
   return data.url as string;
@@ -84,7 +115,7 @@ export const createDrink = async (drink: {
 }): Promise<Drink> => {
   return apiFetch<Drink>("/api/drinks", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(drink),
   });
 };
@@ -101,7 +132,7 @@ export const updateDrink = async (
 ): Promise<Drink> => {
   return apiFetch<Drink>(`/api/drinks/${encodeURIComponent(originalName)}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(data),
   });
 };

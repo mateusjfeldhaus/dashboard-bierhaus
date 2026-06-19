@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { query } from "../db";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get("/", async (_req: Request, res: Response) => {
 });
 
 // PUT /api/beverages/:name/price
-router.put("/:name/price", async (req: Request, res: Response) => {
+router.put("/:name/price", requireAuth, async (req: Request, res: Response) => {
   const name = decodeURIComponent(req.params.name);
   const { price } = req.body as { price: number };
 
@@ -39,7 +40,7 @@ router.put("/:name/price", async (req: Request, res: Response) => {
 });
 
 // PUT /api/beverages/:name/abv
-router.put("/:name/abv", async (req: Request, res: Response) => {
+router.put("/:name/abv", requireAuth, async (req: Request, res: Response) => {
   const name = decodeURIComponent(req.params.name);
   const { abv } = req.body as { abv: number };
 
