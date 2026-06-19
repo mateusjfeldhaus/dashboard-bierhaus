@@ -10,10 +10,10 @@ async function fetchIngredients(drinkNames: string[]) {
     "SELECT drink_name, ingredient_name as name, quantity, unit FROM drink_ingredients WHERE drink_name = ANY($1) ORDER BY id",
     [drinkNames]
   );
-  const map: Record<string, { name: string; quantity: string; unit: string }[]> = {};
+  const map: Record<string, { name: string; quantity: string; unit: IngredientUnit }[]> = {};
   for (const r of rows) {
     if (!map[r.drink_name]) map[r.drink_name] = [];
-    map[r.drink_name].push({ name: r.name, quantity: r.quantity, unit: r.unit ?? "ml" });
+    map[r.drink_name].push({ name: r.name, quantity: r.quantity, unit: (r.unit ?? "ml") as IngredientUnit });
   }
   return map;
 }
