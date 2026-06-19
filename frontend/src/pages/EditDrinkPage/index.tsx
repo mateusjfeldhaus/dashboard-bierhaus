@@ -57,6 +57,7 @@ export const EditDrinkPage = () => {
       setExistingImages(drink.img);
       setLoading(false);
     }).catch(() => navigate("/"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
 
   const toggleType = (t: string) =>
