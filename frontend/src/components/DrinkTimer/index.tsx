@@ -4,9 +4,7 @@ import { StyledTimer } from "./style";
 const PRESETS = [
   { label: "30s",   seconds: 30 },
   { label: "1 min", seconds: 60 },
-  { label: "2 min", seconds: 120 },
   { label: "3 min", seconds: 180 },
-  { label: "5 min", seconds: 300 },
 ];
 
 function formatTime(s: number): string {
