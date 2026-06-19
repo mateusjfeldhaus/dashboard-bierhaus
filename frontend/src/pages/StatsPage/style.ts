@@ -73,6 +73,13 @@ export const StyledStatsPage = styled.div`
     font-size: 0.88rem;
     opacity: 0.8;
     text-align: right;
+    color: ${theme.colors.primary};
+    text-decoration: none;
+  }
+
+  .bar-link {
+    transition: opacity 0.15s;
+    &:hover { opacity: 1; text-decoration: underline; }
   }
 
   .bar-track {
@@ -148,6 +155,10 @@ export const StyledStatsPage = styled.div`
   .ing-name {
     flex: 1;
     text-transform: capitalize;
+    color: ${theme.colors.primary};
+    text-decoration: none;
+    transition: opacity 0.15s;
+    &:hover { opacity: 1; text-decoration: underline; }
   }
 
   .ing-count {

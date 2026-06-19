@@ -1,13 +1,10 @@
 import { useContext, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { DrinkContext } from "../../providers/drinksContext";
 import { DrinkIngredient } from "../../api/client";
 import { useBeverages } from "../../hooks/useBeverages";
+import { CATEGORY_TYPES } from "../../constants/categories";
 import { StyledStatsPage } from "./style";
-
-const CATEGORIES = [
-  "Cachaça", "Espumante", "Gin", "Licores", "Não Alcoólicos",
-  "Rum", "Sake", "Tequila", "Vodka", "Whisky",
-];
 
 const ML_PER_DASH = 0.9;
 
@@ -42,7 +39,7 @@ export const StatsPage = () => {
   }, [beverages]);
 
   const stats = useMemo(() => {
-    const byCategory = CATEGORIES.map((cat) => ({
+    const byCategory = CATEGORY_TYPES.map((cat) => ({
       label: cat,
       count: allDrinks.filter((d) => d.type.includes(cat)).length,
     }));
@@ -110,7 +107,7 @@ export const StatsPage = () => {
         <div className="bar-list alc-list">
           {stats.alcoholRanking.map(({ name, mlAlcohol }) => (
             <div className="bar-row" key={name}>
-              <span className="bar-label">{name}</span>
+              <Link className="bar-label bar-link" to={`/drink/${encodeURIComponent(name)}`}>{name}</Link>
               <div className="bar-track">
                 <div className="bar-fill" style={{ width: `${(mlAlcohol / maxAlc) * 100}%` }} />
               </div>
@@ -131,7 +128,7 @@ export const StatsPage = () => {
           {stats.topIngredients.map(({ name, count }, i) => (
             <li key={name}>
               <span className="ing-rank">#{i + 1}</span>
-              <span className="ing-name">{name}</span>
+              <Link className="ing-name" to={`/ingrediente/${encodeURIComponent(name)}`}>{name}</Link>
               <span className="ing-count">{count}×</span>
             </li>
           ))}
