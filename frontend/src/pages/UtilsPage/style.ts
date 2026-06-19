@@ -133,6 +133,15 @@ export const StyledSingleResult = styled.div`
   .drink-name {
     font-size: 1.1rem;
     font-weight: 700;
+    color: ${theme.colors.primary};
+    text-decoration: none;
+    opacity: 0.9;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
   }
 
   .cost {
