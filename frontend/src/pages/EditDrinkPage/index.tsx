@@ -2,16 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api, uploadImage, updateDrink, IngredientUnit } from "../../api/client";
 import { UnitSelect } from "../../components/UnitSelect";
+import { CATEGORY_TYPES } from "../../constants/categories";
 import {
   StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
   StyledInput, StyledTextarea, StyledCategoryGrid, StyledCategoryChip,
   StyledIngredientRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
   StyledSubmitBtn, StyledError, StyledSuccess,
 } from "../NovoDrinkPage/style";
-
-const CATEGORIES = [
-  "Cachaça","Espumante","Gin","Licores","Não Alcoólicos","Rum","Sake","Tequila","Vodka","Whisky",
-];
 
 interface Ingredient { name: string; quantity: string; unit: IngredientUnit; }
 
@@ -102,7 +99,7 @@ export const EditDrinkPage = () => {
         <StyledSection>
           <StyledLabel>Categorias</StyledLabel>
           <StyledCategoryGrid>
-            {CATEGORIES.map((cat) => (
+            {CATEGORY_TYPES.map((cat) => (
               <StyledCategoryChip key={cat} type="button" $active={types.includes(cat)} onClick={() => toggleType(cat)}>
                 {cat}
               </StyledCategoryChip>

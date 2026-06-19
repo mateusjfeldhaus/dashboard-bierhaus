@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { CATEGORIES } from "../../constants/categories";
 import {
   StyledHeader,
   StyledMobileControls,
@@ -15,16 +16,7 @@ import {
 } from "./style";
 
 const navLinks = [
-  { path: "/cachaca", label: "Cachaca" },
-  { path: "/espumante", label: "Espumante" },
-  { path: "/gin", label: "Gin" },
-  { path: "/licor", label: "Licores" },
-  { path: "/alkoholfrei", label: "Nao Alcoolicos" },
-  { path: "/rum", label: "Rum" },
-  { path: "/sake", label: "Sake" },
-  { path: "/tequila", label: "Tequila" },
-  { path: "/vodka", label: "Vodka" },
-  { path: "/whisky", label: "Whisky" },
+  ...CATEGORIES.map((c) => ({ path: `/${c.slug}`, label: c.label })),
   { path: "/contact", label: "Contato" },
 ];
 
