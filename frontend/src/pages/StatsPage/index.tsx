@@ -8,8 +8,19 @@ import { StyledStatsPage } from "./style";
 
 const ML_PER_DASH = 0.9;
 
+function findAbv(ingName: string, abvMap: Record<string, number>): number {
+  const lower = ingName.toLowerCase();
+  // 1. match exato
+  if (abvMap[lower] !== undefined) return abvMap[lower];
+  // 2. fallback: nome do beverage é substring do ingrediente (ex: "Whisky" dentro de "Scotch Whisky")
+  for (const [bev, abv] of Object.entries(abvMap)) {
+    if (lower.includes(bev) || bev.includes(lower)) return abv;
+  }
+  return 0;
+}
+
 function calcAlcoholMl(ing: DrinkIngredient, abvMap: Record<string, number>): number {
-  const abv = abvMap[ing.name.toLowerCase()] ?? 0;
+  const abv = findAbv(ing.name, abvMap);
   if (!abv) return 0;
   const qty = parseFloat(ing.quantity);
   if (isNaN(qty)) return 0;
