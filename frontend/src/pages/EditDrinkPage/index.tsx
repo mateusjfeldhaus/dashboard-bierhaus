@@ -4,6 +4,7 @@ import { api, uploadImage, updateDrink } from "../../api/client";
 import {
   StyledPage,
   StyledTitle,
+  StyledForm,
   StyledSection,
   StyledLabel,
   StyledInput,
@@ -111,7 +112,7 @@ export const EditDrinkPage = () => {
     <StyledPage>
       <StyledTitle>Editar: {decoded}</StyledTitle>
 
-      <form onSubmit={handleSubmit}>
+      <StyledForm onSubmit={handleSubmit}>
         <StyledSection>
           <StyledLabel>Categorias</StyledLabel>
           <StyledCategoryGrid>
@@ -177,7 +178,7 @@ export const EditDrinkPage = () => {
         <StyledSubmitBtn type="submit" disabled={submitting}>
           {uploading ? "Enviando fotos..." : submitting ? "Salvando..." : "Salvar alterações"}
         </StyledSubmitBtn>
-      </form>
+      </StyledForm>
     </StyledPage>
   );
 };
