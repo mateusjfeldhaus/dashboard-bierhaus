@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { query } from "../db";
-import { Drink } from "../types";
+import { Drink, IngredientUnit } from "../types";
 
 const router = Router();
 
