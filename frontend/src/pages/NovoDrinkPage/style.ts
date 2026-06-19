@@ -47,6 +47,7 @@ export const StyledInput = styled.input`
   outline: none;
   width: 100%;
   transition: border-color 0.15s;
+  min-width: 0;
 
   &:focus { border-color: rgba(255, 208, 110, 0.6); }
   &::placeholder { color: ${theme.colors.primary}; opacity: 0.2; }
@@ -92,7 +93,7 @@ export const StyledCategoryChip = styled.button<{ $active: boolean }>`
 
 export const StyledIngredientRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 110px 24px;
+  grid-template-columns: 1fr 80px 90px 24px;
   gap: 0.75rem;
   align-items: flex-end;
 `;
@@ -155,7 +156,6 @@ export const StyledSubmitBtn = styled.button`
     background: rgba(255, 208, 110, 0.08);
     border-color: rgba(255, 208, 110, 0.7);
   }
-
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 `;
 

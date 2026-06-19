@@ -5,16 +5,17 @@ import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
 
-const formatIngredient = (name: string, quantity: string): string => {
-  if (name === "Hortelã") return `${quantity} folhas de ${name}`;
+const formatIngredient = (name: string, quantity: string, unit: string): string => {
   if (quantity === "Completar") return `Completar com ${name}`;
-  if (name === "Angostura" || name === "Angostura de Laranja")
-    return `${quantity} dashes de ${name}`;
-  if (name.includes("Redbull")) return `${quantity} lata de ${name}`;
-  if (name === "Clara de Ovo") return `${quantity} ${name}`;
-  if (name === "Pimenta Rosa") return `${quantity} de ${name}`;
-  if (name === "Limão") return `Suco de ${quantity} ${name}`;
-  return `${quantity} mL de ${name}`;
+  switch (unit) {
+    case "dash":    return `${quantity} dashes de ${name}`;
+    case "folha":   return `${quantity} folhas de ${name}`;
+    case "lata":    return `${quantity} lata de ${name}`;
+    case "unidade": return `${quantity} ${name}`;
+    case "pitada":  return `${quantity} pitada de ${name}`;
+    case "suco":    return `Suco de ${quantity} ${name}`;
+    default:        return `${quantity} mL de ${name}`;
+  }
 };
 
 export const DrinkPage = () => {
@@ -82,7 +83,7 @@ export const DrinkPage = () => {
             <h2>Ingredientes</h2>
             <ul>
               {drink.ingredients.map((ing, i) => (
-                <li key={i}>{formatIngredient(ing.name, ing.quantity)}</li>
+                <li key={i}>{formatIngredient(ing.name, ing.quantity, ing.unit ?? "ml")}</li>
               ))}
             </ul>
           </section>

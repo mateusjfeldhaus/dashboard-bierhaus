@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx seed/seed.ts",
-    "migrate-images": "tsx seed/migrate-images.ts"
+    "migrate-images": "tsx seed/migrate-images.ts",
+    "migrate-units": "tsx seed/migrate-units.ts"
   },
   "dependencies": {
     "cloudinary": "^2.3.1",

@@ -1,30 +1,19 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadImage, createDrink } from "../../api/client";
+import { uploadImage, createDrink, IngredientUnit } from "../../api/client";
+import { UnitSelect } from "../../components/UnitSelect";
 import {
-  StyledPage,
-  StyledTitle,
-  StyledForm,
-  StyledSection,
-  StyledLabel,
-  StyledInput,
-  StyledTextarea,
-  StyledCategoryGrid,
-  StyledCategoryChip,
-  StyledIngredientRow,
-  StyledAddBtn,
-  StyledRemoveBtn,
-  StyledImagePreview,
-  StyledSubmitBtn,
-  StyledError,
-  StyledSuccess,
+  StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
+  StyledInput, StyledTextarea, StyledCategoryGrid, StyledCategoryChip,
+  StyledIngredientRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
+  StyledSubmitBtn, StyledError, StyledSuccess,
 } from "./style";
 
 const CATEGORIES = [
   "Cachaça","Espumante","Gin","Licores","Não Alcoólicos","Rum","Sake","Tequila","Vodka","Whisky",
 ];
 
-interface Ingredient { name: string; quantity: string; }
+interface Ingredient { name: string; quantity: string; unit: IngredientUnit; }
 
 export const NovoDrinkPage = () => {
   const navigate = useNavigate();
@@ -33,7 +22,7 @@ export const NovoDrinkPage = () => {
   const [name, setName] = useState("");
   const [types, setTypes] = useState<string[]>([]);
   const [recipe, setRecipe] = useState("");
-  const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", quantity: "" }]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", quantity: "", unit: "ml" }]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -44,10 +33,10 @@ export const NovoDrinkPage = () => {
   const toggleType = (t: string) =>
     setTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
 
-  const updateIngredient = (i: number, field: keyof Ingredient, value: string) =>
+  const updateIngredient = <K extends keyof Ingredient>(i: number, field: K, value: Ingredient[K]) =>
     setIngredients((prev) => prev.map((ing, idx) => idx === i ? { ...ing, [field]: value } : ing));
 
-  const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "" }]);
+  const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "ml" }]);
   const removeIngredient = (i: number) => setIngredients((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,26 +58,19 @@ export const NovoDrinkPage = () => {
     setSubmitting(true);
     try {
       let images: string[] = [];
-      if (imageFile) {
-        setUploading(true);
-        images = [await uploadImage(imageFile)];
-        setUploading(false);
-      }
+      if (imageFile) { setUploading(true); images = [await uploadImage(imageFile)]; setUploading(false); }
       await createDrink({ name: name.trim(), types, recipe: recipe.trim(), images, ingredients: validIngredients });
       setSuccess(true);
       setTimeout(() => navigate(`/drink/${encodeURIComponent(name.trim())}`), 1500);
     } catch {
       setError("Erro ao salvar drink. Tente novamente.");
       setUploading(false);
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
   return (
     <StyledPage>
       <StyledTitle>Novo Drink</StyledTitle>
-
       <StyledForm onSubmit={handleSubmit}>
         <StyledSection>
           <StyledLabel>Nome</StyledLabel>
@@ -110,8 +92,11 @@ export const NovoDrinkPage = () => {
           <StyledLabel>Ingredientes</StyledLabel>
           {ingredients.map((ing, i) => (
             <StyledIngredientRow key={i}>
-              <StyledInput type="text" placeholder="Nome (ex: Gin)" value={ing.name} onChange={(e) => updateIngredient(i, "name", e.target.value)} />
-              <StyledInput type="text" placeholder="Qtd (ex: 50)" value={ing.quantity} onChange={(e) => updateIngredient(i, "quantity", e.target.value)} />
+              <StyledInput type="text" placeholder="Nome (ex: Gin)" value={ing.name}
+                onChange={(e) => updateIngredient(i, "name", e.target.value)} />
+              <StyledInput type="text" placeholder="Qtd" value={ing.quantity}
+                onChange={(e) => updateIngredient(i, "quantity", e.target.value)} />
+              <UnitSelect value={ing.unit} onChange={(v) => updateIngredient(i, "unit", v)} />
               {ingredients.length > 1 && <StyledRemoveBtn type="button" onClick={() => removeIngredient(i)}>✕</StyledRemoveBtn>}
             </StyledIngredientRow>
           ))}

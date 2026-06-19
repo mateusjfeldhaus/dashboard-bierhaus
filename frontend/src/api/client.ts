@@ -6,9 +6,12 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+export type IngredientUnit = "ml" | "dash" | "folha" | "lata" | "unidade" | "pitada" | "suco";
+
 export interface DrinkIngredient {
   name: string;
   quantity: string;
+  unit: IngredientUnit;
 }
 
 export interface Drink {
@@ -70,7 +73,7 @@ export const createDrink = async (drink: {
   types: string[];
   recipe: string;
   images: string[];
-  ingredients: { name: string; quantity: string }[];
+  ingredients: { name: string; quantity: string; unit: IngredientUnit }[];
 }): Promise<Drink> => {
   return apiFetch<Drink>("/api/drinks", {
     method: "POST",
@@ -85,7 +88,7 @@ export const updateDrink = async (
     types: string[];
     recipe: string;
     images: string[];
-    ingredients: { name: string; quantity: string }[];
+    ingredients: { name: string; quantity: string; unit: IngredientUnit }[];
     hidden: boolean;
   }>
 ): Promise<Drink> => {

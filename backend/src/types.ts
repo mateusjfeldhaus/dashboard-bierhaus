@@ -1,6 +1,9 @@
+export type IngredientUnit = "ml" | "dash" | "folha" | "lata" | "unidade" | "pitada" | "suco" | "completar";
+
 export interface DrinkIngredient {
   name: string;
   quantity: string;
+  unit: IngredientUnit;
 }
 
 export interface Drink {

@@ -1,30 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, uploadImage, updateDrink } from "../../api/client";
+import { api, uploadImage, updateDrink, IngredientUnit } from "../../api/client";
+import { UnitSelect } from "../../components/UnitSelect";
 import {
-  StyledPage,
-  StyledTitle,
-  StyledForm,
-  StyledSection,
-  StyledLabel,
-  StyledInput,
-  StyledTextarea,
-  StyledCategoryGrid,
-  StyledCategoryChip,
-  StyledIngredientRow,
-  StyledAddBtn,
-  StyledRemoveBtn,
-  StyledImagePreview,
-  StyledSubmitBtn,
-  StyledError,
-  StyledSuccess,
+  StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
+  StyledInput, StyledTextarea, StyledCategoryGrid, StyledCategoryChip,
+  StyledIngredientRow, StyledAddBtn, StyledRemoveBtn, StyledImagePreview,
+  StyledSubmitBtn, StyledError, StyledSuccess,
 } from "../NovoDrinkPage/style";
 
 const CATEGORIES = [
   "Cachaça","Espumante","Gin","Licores","Não Alcoólicos","Rum","Sake","Tequila","Vodka","Whisky",
 ];
 
-interface Ingredient { name: string; quantity: string; }
+interface Ingredient { name: string; quantity: string; unit: IngredientUnit; }
 
 export const EditDrinkPage = () => {
   const { name } = useParams<{ name: string }>();
@@ -52,8 +41,8 @@ export const EditDrinkPage = () => {
       setRecipe(drink.recipe);
       setIngredients(
         drink.ingredients.length
-          ? drink.ingredients.map((i) => ({ name: i.name, quantity: i.quantity }))
-          : [{ name: "", quantity: "" }]
+          ? drink.ingredients.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit ?? "ml" }))
+          : [{ name: "", quantity: "", unit: "ml" }]
       );
       setExistingImages(drink.img);
       setLoading(false);
@@ -64,14 +53,13 @@ export const EditDrinkPage = () => {
   const toggleType = (t: string) =>
     setTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
 
-  const updateIngredient = (i: number, field: keyof Ingredient, value: string) =>
+  const updateIngredient = <K extends keyof Ingredient>(i: number, field: K, value: Ingredient[K]) =>
     setIngredients((prev) => prev.map((ing, idx) => idx === i ? { ...ing, [field]: value } : ing));
 
-  const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "" }]);
+  const addIngredient = () => setIngredients((prev) => [...prev, { name: "", quantity: "", unit: "ml" }]);
   const removeIngredient = (i: number) => setIngredients((prev) => prev.filter((_, idx) => idx !== i));
 
-  const removeExistingImage = (i: number) =>
-    setExistingImages((prev) => prev.filter((_, idx) => idx !== i));
+  const removeExistingImage = (i: number) => setExistingImages((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -92,26 +80,24 @@ export const EditDrinkPage = () => {
         uploadedUrls = await Promise.all(newFiles.map((f) => uploadImage(f)));
         setUploading(false);
       }
-
       const images = [...existingImages, ...uploadedUrls];
-
       await updateDrink(decoded, { types, recipe, images, ingredients: validIngredients });
       setSuccess(true);
       setTimeout(() => navigate(`/drink/${encodeURIComponent(decoded)}`), 1500);
-    } catch (err) {
+    } catch {
       setError("Erro ao salvar. Tente novamente.");
       setUploading(false);
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
   if (loading) return null;
 
+  const getImageSrc = (src: string) =>
+    src.startsWith("http") ? src : `${process.env.PUBLIC_URL}/assets/${src.split("/").pop()}`;
+
   return (
     <StyledPage>
       <StyledTitle>Editar: {decoded}</StyledTitle>
-
       <StyledForm onSubmit={handleSubmit}>
         <StyledSection>
           <StyledLabel>Categorias</StyledLabel>
@@ -128,8 +114,11 @@ export const EditDrinkPage = () => {
           <StyledLabel>Ingredientes</StyledLabel>
           {ingredients.map((ing, i) => (
             <StyledIngredientRow key={i}>
-              <StyledInput type="text" placeholder="Nome" value={ing.name} onChange={(e) => updateIngredient(i, "name", e.target.value)} />
-              <StyledInput type="text" placeholder="Qtd" value={ing.quantity} onChange={(e) => updateIngredient(i, "quantity", e.target.value)} style={{ width: "120px", flexShrink: 0 }} />
+              <StyledInput type="text" placeholder="Nome" value={ing.name}
+                onChange={(e) => updateIngredient(i, "name", e.target.value)} />
+              <StyledInput type="text" placeholder="Qtd" value={ing.quantity}
+                onChange={(e) => updateIngredient(i, "quantity", e.target.value)} />
+              <UnitSelect value={ing.unit} onChange={(v) => updateIngredient(i, "unit", v)} />
               {ingredients.length > 1 && <StyledRemoveBtn type="button" onClick={() => removeIngredient(i)}>✕</StyledRemoveBtn>}
             </StyledIngredientRow>
           ))}
@@ -147,15 +136,11 @@ export const EditDrinkPage = () => {
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
             {existingImages.map((src, i) => (
               <div key={i} style={{ position: "relative" }}>
-                <StyledImagePreview
-                  src={src.startsWith("http") ? src : `${process.env.PUBLIC_URL}/assets/${src.split("/").pop()}`}
-                  alt={`foto ${i + 1}`}
-                />
-                <StyledRemoveBtn
-                  type="button"
-                  onClick={() => removeExistingImage(i)}
-                  style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.5)", opacity: 1, borderRadius: "50%", width: 24, height: 24 }}
-                >✕</StyledRemoveBtn>
+                <StyledImagePreview src={getImageSrc(src)} alt={`foto ${i + 1}`} />
+                <StyledRemoveBtn type="button" onClick={() => removeExistingImage(i)}
+                  style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.5)", opacity: 1, borderRadius: "50%", width: 24, height: 24 }}>
+                  ✕
+                </StyledRemoveBtn>
               </div>
             ))}
           </div>
@@ -166,9 +151,7 @@ export const EditDrinkPage = () => {
           <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleNewImages} />
           <StyledAddBtn type="button" onClick={() => fileRef.current?.click()}>+ Escolher fotos</StyledAddBtn>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {newPreviews.map((src, i) => (
-              <StyledImagePreview key={i} src={src} alt={`nova ${i + 1}`} />
-            ))}
+            {newPreviews.map((src, i) => <StyledImagePreview key={i} src={src} alt={`nova ${i + 1}`} />)}
           </div>
         </StyledSection>
 
