@@ -15,10 +15,11 @@ import {
 } from "./style";
 
 export const PrecosPage = () => {
-  const { beverages, updatePrice } = useBeverages();
+  const { beverages, updatePrice, updateAbv } = useBeverages();
   const [search, setSearch] = useState("");
   const [editingName, setEditingName] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState("");
+  const [editingPrice, setEditingPrice] = useState("");
+  const [editingAbv, setEditingAbv] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,24 +33,29 @@ export const PrecosPage = () => {
     toastTimer.current = setTimeout(() => setToastVisible(false), 2000);
   };
 
-  const startEdit = (name: string, currentPrice: number) => {
+  const startEdit = (name: string, price: number, abv: number) => {
     setEditingName(name);
-    setEditingValue(currentPrice.toFixed(2));
+    setEditingPrice(price.toFixed(2));
+    setEditingAbv(abv > 0 ? (abv * 100).toFixed(1) : "");
   };
 
   const cancelEdit = () => {
     setEditingName(null);
-    setEditingValue("");
+    setEditingPrice("");
+    setEditingAbv("");
   };
 
-  const confirmEdit = (name: string) => {
-    const value = parseFloat(editingValue.replace(",", "."));
-    if (!isNaN(value) && value >= 0) {
-      updatePrice(name, value);
-      showToast();
-    }
+  const confirmEdit = async (name: string) => {
+    const price = parseFloat(editingPrice.replace(",", "."));
+    const abvPct = parseFloat(editingAbv.replace(",", "."));
+
+    if (!isNaN(price) && price >= 0) await updatePrice(name, price);
+    if (!isNaN(abvPct) && abvPct >= 0 && abvPct <= 100) await updateAbv(name, abvPct / 100);
+
+    showToast();
     setEditingName(null);
-    setEditingValue("");
+    setEditingPrice("");
+    setEditingAbv("");
   };
 
   return (
@@ -68,10 +74,7 @@ export const PrecosPage = () => {
       <StyledBeverageList>
         {filtered.map((b) => (
           <StyledBeverageItem key={b.name} $modified={false}>
-            <Link
-              className="name"
-              to={`/ingrediente/${encodeURIComponent(b.name)}`}
-            >
+            <Link className="name" to={`/ingrediente/${encodeURIComponent(b.name)}`}>
               {b.name}
             </Link>
 
@@ -81,26 +84,43 @@ export const PrecosPage = () => {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={editingValue}
-                  onChange={(e) => setEditingValue(e.target.value)}
+                  placeholder="Preço"
+                  value={editingPrice}
+                  onChange={(e) => setEditingPrice(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") confirmEdit(b.name);
                     if (e.key === "Escape") cancelEdit();
                   }}
                   autoFocus
                 />
-                <StyledConfirmBtn onClick={() => confirmEdit(b.name)}>
-                  Salvar
-                </StyledConfirmBtn>
+                <StyledPriceInput
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="ABV %"
+                  value={editingAbv}
+                  onChange={(e) => setEditingAbv(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") confirmEdit(b.name);
+                    if (e.key === "Escape") cancelEdit();
+                  }}
+                  style={{ width: 70 }}
+                />
+                <span style={{ fontSize: "0.8rem", opacity: 0.5 }}>%</span>
+                <StyledConfirmBtn onClick={() => confirmEdit(b.name)}>Salvar</StyledConfirmBtn>
                 <StyledCancelBtn onClick={cancelEdit}>✕</StyledCancelBtn>
               </StyledEditRow>
             ) : (
               <>
+                {b.abv > 0 && (
+                  <span className="abv-badge">{(b.abv * 100).toFixed(0)}%</span>
+                )}
                 <span className="price-display">R$ {b.price.toFixed(2)}</span>
                 <button
                   className="edit-btn"
-                  onClick={() => startEdit(b.name, b.price)}
-                  title="Editar preco"
+                  onClick={() => startEdit(b.name, b.price, b.abv)}
+                  title="Editar"
                 >
                   ✏
                 </button>

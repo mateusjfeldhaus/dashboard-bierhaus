@@ -91,6 +91,17 @@ export const StyledBeverageItem = styled.li<{ $modified: boolean }>`
     }
   }
 
+  .abv-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.45;
+    border: 1px solid rgba(255, 208, 110, 0.25);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .price-display {
     font-size: 0.95rem;
     font-weight: 600;

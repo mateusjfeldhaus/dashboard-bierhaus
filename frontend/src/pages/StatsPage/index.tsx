@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { DrinkContext } from "../../providers/drinksContext";
 import { DrinkIngredient } from "../../api/client";
+import { useBeverages } from "../../hooks/useBeverages";
 import { StyledStatsPage } from "./style";
 
 const CATEGORIES = [
@@ -8,46 +9,10 @@ const CATEGORIES = [
   "Rum", "Sake", "Tequila", "Vodka", "Whisky",
 ];
 
-// ABV por ingrediente (fração, ex: 0.40 = 40%)
-const ABV: Record<string, number> = {
-  "cachaça":             0.40,
-  "gin":                 0.40,
-  "gin/vodka":           0.40,
-  "gin/conhaque":        0.40,
-  "vodka":               0.40,
-  "rum":                 0.40,
-  "tequila silver":      0.40,
-  "whisky":              0.40,
-  "scotch whisky":       0.40,
-  "whisky bourbon":      0.40,
-  "jack daniels":        0.40,
-  "cointreau":           0.40,
-  "curaçau blue":        0.30,
-  "licor 43":            0.31,
-  "limoncello":          0.28,
-  "angostura de laranja":0.28,
-  "licor de pêssego":    0.18,
-  "dry vermouth":        0.18,
-  "sake":                0.17,
-  "vermouth rosso":      0.16,
-  "campari":             0.25,
-  "cynar":               0.165,
-  "licor kahluá":        0.20,
-  "licor de café":       0.20,
-  "rum malibu":          0.21,
-  "espumante":           0.12,
-  "aperol":              0.11,
-  "angostura":           0.447,
-};
-
 const ML_PER_DASH = 0.9;
 
-function lookupAbv(name: string): number {
-  return ABV[name.toLowerCase()] ?? 0;
-}
-
-function calcAlcoholMl(ing: DrinkIngredient): number {
-  const abv = lookupAbv(ing.name);
+function calcAlcoholMl(ing: DrinkIngredient, abvMap: Record<string, number>): number {
+  const abv = abvMap[ing.name.toLowerCase()] ?? 0;
   if (!abv) return 0;
   const qty = parseFloat(ing.quantity);
   if (isNaN(qty)) return 0;
@@ -57,14 +22,24 @@ function calcAlcoholMl(ing: DrinkIngredient): number {
 }
 
 function alcoholLabel(ml: number): string {
-  if (ml === 0)   return "sem álcool";
-  if (ml < 10)    return "leve";
-  if (ml < 20)    return "médio";
+  if (ml === 0)  return "sem álcool";
+  if (ml < 10)   return "leve";
+  if (ml < 20)   return "médio";
   return "forte";
 }
 
 export const StatsPage = () => {
   const { allDrinks } = useContext(DrinkContext);
+  const { beverages } = useBeverages();
+
+  // Monta mapa name (lowercase) → abv a partir dos dados da API
+  const abvMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    beverages.forEach((b) => {
+      if (b.abv > 0) map[b.name.toLowerCase()] = b.abv;
+    });
+    return map;
+  }, [beverages]);
 
   const stats = useMemo(() => {
     const byCategory = CATEGORIES.map((cat) => ({
@@ -89,12 +64,15 @@ export const StatsPage = () => {
     const alcoholRanking = allDrinks
       .map((d) => ({
         name: d.name,
-        mlAlcohol: d.ingredients.reduce((sum, ing) => sum + calcAlcoholMl(ing), 0),
+        mlAlcohol: d.ingredients.reduce(
+          (sum, ing) => sum + calcAlcoholMl(ing, abvMap),
+          0
+        ),
       }))
       .sort((a, b) => b.mlAlcohol - a.mlAlcohol);
 
     return { total: allDrinks.length, byCategory, topIngredients, alcoholRanking };
-  }, [allDrinks]);
+  }, [allDrinks, abvMap]);
 
   const maxCat = Math.max(...stats.byCategory.map((c) => c.count), 1);
   const maxAlc = Math.max(...stats.alcoholRanking.map((d) => d.mlAlcohol), 1);
@@ -126,7 +104,7 @@ export const StatsPage = () => {
       <section>
         <h2>mL de álcool puro por drink</h2>
         <p className="section-note">
-          Calculado com base no teor alcoólico de cada ingrediente.
+          Calculado com base no ABV de cada ingrediente cadastrado em Preços.
           1 dose padrão brasileira ≈ 14 mL de álcool puro.
         </p>
         <div className="bar-list alc-list">
