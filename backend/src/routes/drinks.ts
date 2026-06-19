@@ -18,7 +18,7 @@ async function fetchIngredients(drinkNames: string[]) {
   return map;
 }
 
-function mapDrink(d: any, ingredients: { name: string; quantity: string; unit: string }[]): Drink {
+function mapDrink(d: any, ingredients: { name: string; quantity: string; unit: IngredientUnit }[]): Drink {
   return {
     name: d.name,
     type: d.types,
