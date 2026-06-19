@@ -148,7 +148,7 @@ export const UtilsPage = () => {
 
           {drinkCost && (
             <StyledSingleResult>
-              <Link className="drink-name" to={`/drink/${encodeURIComponent(drinkCost.name)}`}>{drinkCost.name}</Link>
+              <Link className="drink-name" to={`/drink/${encodeURIComponent(drinkCost.name)}`} state={{ fromTab: "custo" }}>{drinkCost.name}</Link>
               {drinkCost.cost == null ? (
                 <div className="cost-note">
                   Drink nao encontrado ou ingredientes sem preco cadastrado.
@@ -173,7 +173,7 @@ export const UtilsPage = () => {
           ) : (
             <StyledResultList>
               {allPrices.map((item) => (
-                <StyledResultItem key={item.name} as={Link} to={`/drink/${encodeURIComponent(item.name)}`}>
+                <StyledResultItem key={item.name} as={Link} to={`/drink/${encodeURIComponent(item.name)}`} state={{ fromTab: "custo" }}>
                   <span className="name">{item.name}</span>
                   {item.price > 0 ? (
                     <span className="value">R$ {item.price.toFixed(2)}</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { api, Drink } from "../../api/client";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
@@ -19,7 +19,15 @@ const formatIngredient = (name: string, quantity: string): string => {
 export const DrinkPage = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
+
+  const fromTab = (location.state as { fromTab?: string } | null)?.fromTab;
+
+  const handleBack = () => {
+    if (fromTab) navigate("/utils", { state: { tab: fromTab } });
+    else navigate(-1);
+  };
 
   useEffect(() => {
     if (!name) return;
@@ -35,7 +43,7 @@ export const DrinkPage = () => {
 
   return (
     <StyledDrinkPage>
-      <button className="back-btn" onClick={() => navigate(-1)}>
+      <button className="back-btn" onClick={handleBack}>
         Voltar
       </button>
 
