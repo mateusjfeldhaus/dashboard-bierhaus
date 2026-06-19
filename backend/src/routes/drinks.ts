@@ -35,7 +35,7 @@ router.get("/", async (_req: Request, res: Response) => {
     const drinks = await query("SELECT name, types, images, recipe, hidden FROM drinks WHERE hidden = false ORDER BY name");
     const ingMap = await fetchIngredients(drinks.map((d) => d.name));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.name] ?? [])));
-  } catch { res.status(500).json({ error: "Erro ao buscar drinks" }); }
+  } catch (err) { console.error("[GET /drinks]", err); res.status(500).json({ error: "Erro ao buscar drinks" }); }
 });
 
 // GET /api/drinks/search?q=
@@ -49,7 +49,7 @@ router.get("/search", async (req: Request, res: Response) => {
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.name));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.name] ?? [])));
-  } catch { res.status(500).json({ error: "Erro na busca" }); }
+  } catch (err) { console.error("[GET /drinks/search]", err); res.status(500).json({ error: "Erro na busca" }); }
 });
 
 // GET /api/drinks/by-ingredient/:ingredient
@@ -65,7 +65,7 @@ router.get("/by-ingredient/:ingredient", async (req: Request, res: Response) => 
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.name));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.name] ?? [])));
-  } catch { res.status(500).json({ error: "Erro ao buscar por ingrediente" }); }
+  } catch (err) { console.error("[GET /drinks/by-ingredient]", err); res.status(500).json({ error: "Erro ao buscar por ingrediente" }); }
 });
 
 // GET /api/drinks/category/:category
@@ -78,7 +78,7 @@ router.get("/category/:category", async (req: Request, res: Response) => {
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.name));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.name] ?? [])));
-  } catch { res.status(500).json({ error: "Erro ao buscar categoria" }); }
+  } catch (err) { console.error("[GET /drinks/category]", err); res.status(500).json({ error: "Erro ao buscar categoria" }); }
 });
 
 // GET /api/drinks/:name
@@ -89,17 +89,17 @@ router.get("/:name", async (req: Request, res: Response) => {
       "SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1 AND hidden = false",
       [name]
     );
-    if (!drinks.length) return res.status(404).json({ error: "Drink nao encontrado" });
+    if (!drinks.length) return res.status(404).json({ error: "Drink não encontrado" });
     const ingMap = await fetchIngredients([name]);
     res.json(mapDrink(drinks[0], ingMap[name] ?? []));
-  } catch { res.status(500).json({ error: "Erro ao buscar drink" }); }
+  } catch (err) { console.error("[GET /drinks/:name]", err); res.status(500).json({ error: "Erro ao buscar drink" }); }
 });
 
 // POST /api/drinks
 router.post("/", async (req: Request, res: Response) => {
   const { name, types, recipe, images, ingredients, hidden = false } = req.body;
   if (!name || !types?.length || !recipe) {
-    return res.status(400).json({ error: "name, types e recipe sao obrigatorios" });
+    return res.status(400).json({ error: "name, types e recipe são obrigatórios" });
   }
   try {
     await query(
@@ -122,7 +122,7 @@ router.post("/", async (req: Request, res: Response) => {
     const drinks = await query("SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1", [name]);
     const ingMap = await fetchIngredients([name]);
     res.status(201).json(mapDrink(drinks[0], ingMap[name] ?? []));
-  } catch { res.status(500).json({ error: "Erro ao criar drink" }); }
+  } catch (err) { console.error("[POST /drinks]", err); res.status(500).json({ error: "Erro ao criar drink" }); }
 });
 
 // PUT /api/drinks/:name
@@ -131,7 +131,7 @@ router.put("/:name", async (req: Request, res: Response) => {
   const { types, recipe, images, ingredients, hidden } = req.body;
   try {
     const existing = await query("SELECT name FROM drinks WHERE name = $1", [name]);
-    if (!existing.length) return res.status(404).json({ error: "Drink nao encontrado" });
+    if (!existing.length) return res.status(404).json({ error: "Drink não encontrado" });
     await query(
       `UPDATE drinks SET
         types  = COALESCE($1, types),
@@ -153,7 +153,7 @@ router.put("/:name", async (req: Request, res: Response) => {
     const drinks = await query("SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1", [name]);
     const ingMap = await fetchIngredients([name]);
     res.json(mapDrink(drinks[0], ingMap[name] ?? []));
-  } catch { res.status(500).json({ error: "Erro ao atualizar drink" }); }
+  } catch (err) { console.error("[PUT /drinks/:name]", err); res.status(500).json({ error: "Erro ao atualizar drink" }); }
 });
 
 export default router;

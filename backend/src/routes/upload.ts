@@ -28,6 +28,7 @@ router.post("/", upload.single("image"), async (req: Request, res: Response) => 
     });
     res.json({ url: result.secure_url });
   } catch (err) {
+    console.error("[POST /upload]", err);
     res.status(500).json({ error: "Erro no upload" });
   }
 });
