@@ -87,6 +87,7 @@ export const UtilsPage = () => {
       .map(([name, total]) => ({ name, total }))
       .sort((a, b) => b.total - a.total);
     setIngredientSummary(sorted);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allDrinks]);
 
   return (
