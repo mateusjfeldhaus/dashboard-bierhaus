@@ -41,6 +41,8 @@ export const DrinkPage = () => {
   if (drink === null) return <NotFound />;
 
   const publicUrl = process.env.PUBLIC_URL;
+  const getImageSrc = (src: string) =>
+    src.startsWith("http") ? src : `${publicUrl}/assets/${src.split("/").pop()}`;
 
   return (
     <StyledDrinkPage>
@@ -65,7 +67,7 @@ export const DrinkPage = () => {
               return (
                 <img
                   key={i}
-                  src={`${publicUrl}/assets/${filename}`}
+                  src={getImageSrc(src)}
                   alt={`${drink.name} ${i + 1}`}
                 />
               );
