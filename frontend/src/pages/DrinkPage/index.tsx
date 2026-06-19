@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink } from "../../api/client";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
+import { DrinkTimer } from "../../components/DrinkTimer";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
 
@@ -89,6 +90,7 @@ export const DrinkPage = () => {
                 <li key={i}>{step}</li>
               ))}
             </ol>
+            <DrinkTimer />
           </section>
         </div>
       </div>
