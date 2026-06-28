@@ -1,11 +1,11 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
 const shimmer = keyframes`
   0%   { background-position: -400px 0; }
   100% { background-position:  400px 0; }
 `;
 
-const shimmerBg = `
+const shimmerBg = css`
   background: linear-gradient(
     90deg,
     rgba(255,255,255,0.04) 25%,
