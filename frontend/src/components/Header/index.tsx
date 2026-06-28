@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CATEGORIES } from "../../constants/categories";
+import { useIsAdmin } from "../../hooks/useIsAdmin";
 import {
   StyledHeader,
   StyledMobileControls,
@@ -28,6 +29,7 @@ const adminLinks = [
 ];
 
 export const Header = () => {
+  const isAdmin = useIsAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -69,25 +71,27 @@ export const Header = () => {
             {link.label}
           </Link>
         ))}
-        <StyledAdminMenu ref={adminRef}>
-          <StyledAdminToggle
-            $open={isAdminOpen}
-            onClick={() => setIsAdminOpen(!isAdminOpen)}
-          >
-            Admin {isAdminOpen ? "▴" : "▾"}
-          </StyledAdminToggle>
-          <StyledAdminDropdown $open={isAdminOpen}>
-            {adminLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsAdminOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </StyledAdminDropdown>
-        </StyledAdminMenu>
+        {isAdmin && (
+          <StyledAdminMenu ref={adminRef}>
+            <StyledAdminToggle
+              $open={isAdminOpen}
+              onClick={() => setIsAdminOpen(!isAdminOpen)}
+            >
+              Admin {isAdminOpen ? "▴" : "▾"}
+            </StyledAdminToggle>
+            <StyledAdminDropdown $open={isAdminOpen}>
+              {adminLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsAdminOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </StyledAdminDropdown>
+          </StyledAdminMenu>
+        )}
       </StyledDesktopNav>
 
       <StyledDesktopSearchForm onSubmit={handleSearch}>
@@ -142,18 +146,22 @@ export const Header = () => {
               </Link>
             </li>
           ))}
-          <li className="mobile-admin-label">Admin</li>
-          {adminLinks.map((link) => (
-            <li key={link.path}>
-              <Link
-                className="mobile-admin-link"
-                to={link.path}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
+          {isAdmin && (
+            <>
+              <li className="mobile-admin-label">Admin</li>
+              {adminLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    className="mobile-admin-link"
+                    to={link.path}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </>
+          )}
         </ul>
       </StyledMobileNav>
     </StyledHeader>
