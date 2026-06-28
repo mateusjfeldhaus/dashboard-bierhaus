@@ -118,6 +118,12 @@ export const StyledDrinkPage = styled.article`
     &:disabled { cursor: wait; opacity: 0.2; }
   }
 
+  .upload-error {
+    font-size: 0.75rem;
+    color: #ff7070;
+    opacity: 0.9;
+  }
+
   .img-placeholder {
     width: 100%;
     aspect-ratio: 3 / 4;

@@ -27,6 +27,7 @@ export const DrinkPage = () => {
   const location = useLocation();
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { allDrinks, loading: contextLoading } = useContext(DrinkContext);
@@ -71,12 +72,14 @@ export const DrinkPage = () => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploading(true);
+    setUploadError(null);
     try {
       const newUrls = await Promise.all(files.map(uploadImage));
       const updated = await updateDrink(drink.name, { images: [...drink.img, ...newUrls] });
       setDrink(updated);
     } catch {
-      // silently fail — user can retry via EditDrinkPage
+      setUploadError("Falha no upload. Tente novamente.");
+      setTimeout(() => setUploadError(null), 4000);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -107,6 +110,7 @@ export const DrinkPage = () => {
               </button>
             </>
             <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>
+            {uploadError && <span className="upload-error">{uploadError}</span>}
           </div>
         )}
       </div>
