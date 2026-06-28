@@ -79,7 +79,7 @@ export const Header = () => {
             {link.label}
           </Link>
         ))}
-        {isAdmin && (
+        {isAdmin ? (
           <StyledAdminMenu ref={adminRef}>
             <StyledAdminToggle
               $open={isAdminOpen}
@@ -100,6 +100,8 @@ export const Header = () => {
               <button className="logout-btn" onClick={handleLogout}>Sair</button>
             </StyledAdminDropdown>
           </StyledAdminMenu>
+        ) : (
+          <Link to="/precos" className="login-link">🔒 Admin</Link>
         )}
       </StyledDesktopNav>
 
@@ -155,7 +157,7 @@ export const Header = () => {
               </Link>
             </li>
           ))}
-          {isAdmin && (
+          {isAdmin ? (
             <>
               <li className="mobile-admin-label">Admin</li>
               {adminLinks.map((link) => (
@@ -175,6 +177,16 @@ export const Header = () => {
                 </button>
               </li>
             </>
+          ) : (
+            <li>
+              <Link
+                className="mobile-admin-link"
+                to="/precos"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                🔒 Entrar como admin
+              </Link>
+            </li>
           )}
         </ul>
       </StyledMobileNav>

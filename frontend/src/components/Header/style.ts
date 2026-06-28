@@ -72,6 +72,12 @@ export const StyledDesktopNav = styled.nav`
     a:hover {
       opacity: 1;
     }
+
+    .login-link {
+      opacity: 0.35;
+      font-size: 0.78rem;
+      margin-left: auto;
+    }
   }
 `;
 
