@@ -12,6 +12,7 @@ import {
   StyledConfirmBtn,
   StyledCancelBtn,
   StyledSavedToast,
+  StyledErrorToast,
 } from "./style";
 
 export const PrecosPage = () => {
@@ -21,6 +22,7 @@ export const PrecosPage = () => {
   const [editingPrice, setEditingPrice] = useState("");
   const [editingAbv, setEditingAbv] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filtered = beverages
@@ -49,13 +51,18 @@ export const PrecosPage = () => {
     const price = parseFloat(editingPrice.replace(",", "."));
     const abvPct = parseFloat(editingAbv.replace(",", "."));
 
-    if (!isNaN(price) && price >= 0) await updatePrice(name, price);
-    if (!isNaN(abvPct) && abvPct >= 0 && abvPct <= 100) await updateAbv(name, abvPct / 100);
-
-    showToast();
-    setEditingName(null);
-    setEditingPrice("");
-    setEditingAbv("");
+    try {
+      if (!isNaN(price) && price >= 0) await updatePrice(name, price);
+      if (!isNaN(abvPct) && abvPct >= 0 && abvPct <= 100) await updateAbv(name, abvPct / 100);
+      showToast();
+      setEditingName(null);
+      setEditingPrice("");
+      setEditingAbv("");
+    } catch {
+      setSaveError(true);
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => setSaveError(false), 3000);
+    }
   };
 
   return (
@@ -131,6 +138,7 @@ export const PrecosPage = () => {
       </StyledBeverageList>
 
       <StyledSavedToast $visible={toastVisible}>Salvo</StyledSavedToast>
+      <StyledErrorToast $visible={saveError}>Erro ao salvar. Tente novamente.</StyledErrorToast>
     </StyledPrecosPage>
   );
 };

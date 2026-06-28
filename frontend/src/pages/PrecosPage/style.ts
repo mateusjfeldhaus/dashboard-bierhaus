@@ -192,19 +192,28 @@ export const StyledCancelBtn = styled.button`
   }
 `;
 
-export const StyledSavedToast = styled.div<{ $visible: boolean }>`
+const ToastBase = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 5rem;
   left: 50%;
   transform: translateX(-50%) translateY(${({ $visible }) => ($visible ? "0" : "1rem")});
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  background: rgba(255, 208, 110, 0.15);
-  border: 1px solid rgba(255, 208, 110, 0.3);
-  color: ${theme.colors.primary};
   font-size: 0.85rem;
   padding: 0.5rem 1.25rem;
   border-radius: 999px;
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
   white-space: nowrap;
+`;
+
+export const StyledSavedToast = styled(ToastBase)`
+  background: rgba(255, 208, 110, 0.15);
+  border: 1px solid rgba(255, 208, 110, 0.3);
+  color: ${theme.colors.primary};
+`;
+
+export const StyledErrorToast = styled(ToastBase)`
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  color: #ff7070;
 `;
