@@ -25,7 +25,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
-export type IngredientUnit = "ml" | "dash" | "folha" | "lata" | "unidade" | "pitada" | "suco";
+export type IngredientUnit = "ml" | "dash" | "folha" | "lata" | "unidade" | "pitada" | "suco" | "completar";
 
 export interface DrinkIngredient {
   name: string;

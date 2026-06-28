@@ -7,7 +7,7 @@ const router = Router();
 const COST_EXPR = `
   CASE
     WHEN b.price IS NULL OR b.quantity IS NULL OR b.quantity = 0 THEN 0
-    WHEN di.quantity IN ('Completar', 'Pitada')                  THEN b.price
+    WHEN lower(di.unit) IN ('completar', 'pitada')               THEN b.price
     WHEN di.quantity ~ '^[0-9]+(\\.[0-9]+)?$'                   THEN (di.quantity::numeric * (b.price / b.quantity))
     ELSE 0
   END

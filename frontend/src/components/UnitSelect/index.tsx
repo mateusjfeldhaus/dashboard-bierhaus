@@ -3,13 +3,14 @@ import { theme } from "../../styles/theme";
 import { IngredientUnit } from "../../api/client";
 
 export const UNITS: { value: IngredientUnit; label: string }[] = [
-  { value: "ml",      label: "mL" },
-  { value: "dash",    label: "dash" },
-  { value: "folha",   label: "folha" },
-  { value: "lata",    label: "lata" },
-  { value: "unidade", label: "unidade" },
-  { value: "pitada",  label: "pitada" },
-  { value: "suco",    label: "suco de" },
+  { value: "ml",       label: "mL" },
+  { value: "dash",     label: "dash" },
+  { value: "folha",    label: "folha" },
+  { value: "lata",     label: "lata" },
+  { value: "unidade",  label: "unidade" },
+  { value: "pitada",   label: "pitada" },
+  { value: "suco",     label: "suco de" },
+  { value: "completar", label: "completar" },
 ];
 
 const StyledSelect = styled.select`
