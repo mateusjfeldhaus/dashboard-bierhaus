@@ -7,9 +7,16 @@
  *   cd backend && npx tsx src/scripts/migrate-pk.ts
  */
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+// Carrega .env antes de qualquer import que use process.env
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-import { pool } from "../db";
+// Pool criada APÓS dotenv.config() para garantir DATABASE_URL disponível
+import { Pool } from "pg";
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 async function constraintExists(client: any, name: string): Promise<boolean> {
   const { rows } = await client.query(

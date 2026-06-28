@@ -2,15 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { createDrink } from "../../api/client";
 import { DrinkForm, DrinkFormPayload } from "../../components/DrinkForm";
 
-const INITIAL: DrinkFormPayload & { existingImages: string[] } = {
-  name: "",
-  types: [],
-  recipe: "",
-  ingredients: [],
-  images: [],
-  existingImages: [],
-};
-
 export const NovoDrinkPage = () => {
   const navigate = useNavigate();
 
