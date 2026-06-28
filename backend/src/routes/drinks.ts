@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
-import { query } from "../db";
+import { PoolClient } from "pg";
+import { pool, query } from "../db";
 import { Drink, IngredientUnit } from "../types";
 import { requireAuth } from "../middleware/requireAuth";
 
@@ -96,14 +97,30 @@ router.get("/:name", async (req: Request, res: Response) => {
   } catch (err) { console.error("[GET /drinks/:name]", err); res.status(500).json({ error: "Erro ao buscar drink" }); }
 });
 
+async function insertIngredients(
+  client: PoolClient,
+  drinkName: string,
+  ingredients: { name: string; quantity: string; unit?: string }[]
+) {
+  await client.query("DELETE FROM drink_ingredients WHERE drink_name = $1", [drinkName]);
+  for (const ing of ingredients) {
+    await client.query(
+      "INSERT INTO drink_ingredients (drink_name, ingredient_name, quantity, unit) VALUES ($1, $2, $3, $4)",
+      [drinkName, ing.name, ing.quantity, ing.unit ?? "ml"]
+    );
+  }
+}
+
 // POST /api/drinks
 router.post("/", requireAuth, async (req: Request, res: Response) => {
   const { name, types, recipe, images, ingredients, hidden = false } = req.body;
   if (!name || !types?.length || !recipe) {
     return res.status(400).json({ error: "name, types e recipe são obrigatórios" });
   }
+  const client = await pool.connect();
   try {
-    await query(
+    await client.query("BEGIN");
+    await client.query(
       `INSERT INTO drinks (name, types, recipe, images, hidden)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (name) DO UPDATE
@@ -111,29 +128,34 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
            images = EXCLUDED.images, hidden = EXCLUDED.hidden`,
       [name, types, recipe, images ?? [], hidden]
     );
-    if (ingredients?.length) {
-      await query("DELETE FROM drink_ingredients WHERE drink_name = $1", [name]);
-      for (const ing of ingredients) {
-        await query(
-          "INSERT INTO drink_ingredients (drink_name, ingredient_name, quantity, unit) VALUES ($1, $2, $3, $4)",
-          [name, ing.name, ing.quantity, ing.unit ?? "ml"]
-        );
-      }
-    }
+    if (ingredients?.length) await insertIngredients(client, name, ingredients);
+    await client.query("COMMIT");
+
     const drinks = await query("SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1", [name]);
     const ingMap = await fetchIngredients([name]);
     res.status(201).json(mapDrink(drinks[0], ingMap[name] ?? []));
-  } catch (err) { console.error("[POST /drinks]", err); res.status(500).json({ error: "Erro ao criar drink" }); }
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("[POST /drinks]", err);
+    res.status(500).json({ error: "Erro ao criar drink" });
+  } finally {
+    client.release();
+  }
 });
 
 // PUT /api/drinks/:name
 router.put("/:name", requireAuth, async (req: Request, res: Response) => {
   const name = decodeURIComponent(req.params.name);
   const { types, recipe, images, ingredients, hidden } = req.body;
+  const client = await pool.connect();
   try {
-    const existing = await query("SELECT name FROM drinks WHERE name = $1", [name]);
-    if (!existing.length) return res.status(404).json({ error: "Drink não encontrado" });
-    await query(
+    await client.query("BEGIN");
+    const existing = await client.query("SELECT name FROM drinks WHERE name = $1", [name]);
+    if (!existing.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Drink não encontrado" });
+    }
+    await client.query(
       `UPDATE drinks SET
         types  = COALESCE($1, types),
         recipe = COALESCE($2, recipe),
@@ -142,19 +164,19 @@ router.put("/:name", requireAuth, async (req: Request, res: Response) => {
        WHERE name = $5`,
       [types ?? null, recipe ?? null, images ?? null, hidden ?? null, name]
     );
-    if (ingredients) {
-      await query("DELETE FROM drink_ingredients WHERE drink_name = $1", [name]);
-      for (const ing of ingredients) {
-        await query(
-          "INSERT INTO drink_ingredients (drink_name, ingredient_name, quantity, unit) VALUES ($1, $2, $3, $4)",
-          [name, ing.name, ing.quantity, ing.unit ?? "ml"]
-        );
-      }
-    }
+    if (ingredients) await insertIngredients(client, name, ingredients);
+    await client.query("COMMIT");
+
     const drinks = await query("SELECT name, types, images, recipe, hidden FROM drinks WHERE name = $1", [name]);
     const ingMap = await fetchIngredients([name]);
     res.json(mapDrink(drinks[0], ingMap[name] ?? []));
-  } catch (err) { console.error("[PUT /drinks/:name]", err); res.status(500).json({ error: "Erro ao atualizar drink" }); }
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("[PUT /drinks/:name]", err);
+    res.status(500).json({ error: "Erro ao atualizar drink" });
+  } finally {
+    client.release();
+  }
 });
 
 export default router;
