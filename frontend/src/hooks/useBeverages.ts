@@ -4,11 +4,18 @@ import { api, Beverage } from "../api/client";
 export function useBeverages() {
   const [beverages, setBeverages] = useState<Beverage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBeverages = useCallback(async () => {
-    const data = await api.beverages.list();
-    setBeverages(data);
-    setLoading(false);
+    try {
+      const data = await api.beverages.list();
+      setBeverages(data);
+      setError(null);
+    } catch {
+      setError("Erro ao carregar ingredientes.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -25,5 +32,5 @@ export function useBeverages() {
     await fetchBeverages();
   }, [fetchBeverages]);
 
-  return { beverages, loading, updatePrice, updateAbv };
+  return { beverages, loading, error, updatePrice, updateAbv };
 }

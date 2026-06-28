@@ -4,7 +4,7 @@ import { DrinkList } from "../../components/DrinkList";
 import { DrinkContext } from "../../providers/drinksContext";
 
 export const HomePage = () => {
-  const { allDrinks } = useContext(DrinkContext);
+  const { allDrinks, loading, error } = useContext(DrinkContext);
 
   return (
     <>
@@ -15,7 +15,9 @@ export const HomePage = () => {
         </p>
       </StyledDrinkList>
 
-      <DrinkList drinks={allDrinks} />
+      {error && <p style={{ opacity: 0.5, fontSize: "0.9rem", padding: "0 1rem" }}>{error}</p>}
+      {!error && loading && <p style={{ opacity: 0.35, fontSize: "0.9rem", padding: "0 1rem" }}>Carregando...</p>}
+      {!loading && !error && <DrinkList drinks={allDrinks} />}
     </>
   );
 };

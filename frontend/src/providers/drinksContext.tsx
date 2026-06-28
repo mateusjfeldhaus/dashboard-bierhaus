@@ -6,6 +6,7 @@ export type { Drink as IDrink };
 export interface IDrinkContext {
   allDrinks: Drink[];
   loading: boolean;
+  error: string | null;
   filterDrinksByIngredient: (drinks: Drink[], ingredient: string) => Drink[];
   filterDrinksByName: (query: string) => Drink[];
 }
@@ -19,12 +20,16 @@ function removeAccents(str: string) {
 export const DrinkProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allDrinks, setAllDrinks] = useState<Drink[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.drinks.list().then((drinks) => {
-      setAllDrinks(drinks);
-      setLoading(false);
-    });
+    api.drinks.list()
+      .then((drinks) => {
+        setAllDrinks(drinks);
+        setError(null);
+      })
+      .catch(() => setError("Erro ao carregar drinks. Tente recarregar a página."))
+      .finally(() => setLoading(false));
   }, []);
 
   const filterDrinksByIngredient = (drinks: Drink[], ingredient: string) => {
@@ -46,7 +51,7 @@ export const DrinkProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   return (
     <DrinkContext.Provider
-      value={{ allDrinks, loading, filterDrinksByIngredient, filterDrinksByName }}
+      value={{ allDrinks, loading, error, filterDrinksByIngredient, filterDrinksByName }}
     >
       {children}
     </DrinkContext.Provider>
