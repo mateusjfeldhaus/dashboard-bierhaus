@@ -30,9 +30,8 @@ function calcAlcoholMl(ing: DrinkIngredient, abvMap: Record<string, number>): nu
 }
 
 function alcoholLabel(ml: number): string {
-  if (ml === 0)  return "sem álcool";
-  if (ml < 10)   return "leve";
-  if (ml < 20)   return "médio";
+  if (ml === 0)    return "sem álcool";
+  if (ml <= 22.5)  return "médio";
   return "forte";
 }
 

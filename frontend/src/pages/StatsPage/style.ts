@@ -124,7 +124,6 @@ export const StyledStatsPage = styled.div`
     text-align: center;
   }
 
-  .alc-badge.alc-leve       { background: rgba(100, 200, 120, 0.15); color: #6ec87a; }
   .alc-badge.alc-médio      { background: rgba(255, 180, 50, 0.15);  color: #ffb432; }
   .alc-badge.alc-forte      { background: rgba(220, 80, 80, 0.15);   color: #e06060; }
   .alc-badge.alc-sem-álcool { background: rgba(255,255,255,0.06);    color: rgba(255,255,255,0.3); }
