@@ -9,7 +9,7 @@ import authRouter from "./routes/auth";
 
 dotenv.config();
 
-const REQUIRED_ENV = ["DATABASE_URL", "JWT_SECRET", "ADMIN_PASSWORD"];
+const REQUIRED_ENV = ["DATABASE_URL", "JWT_SECRET", "ADMIN_PASSWORD", "FRONTEND_URL"];
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) {
     console.error(`[startup] Variável de ambiente obrigatória não definida: ${key}`);
@@ -21,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "PUT", "POST", "DELETE"],
 }));
 app.use(express.json());
