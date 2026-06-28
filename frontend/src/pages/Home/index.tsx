@@ -4,6 +4,7 @@ import { DrinkList } from "../../components/DrinkList";
 import { DrinkContext } from "../../providers/drinksContext";
 import { DrinkGridSkeleton } from "../../components/Skeleton";
 import { useFavorites } from "../../hooks/useFavorites";
+import { FeaturedCard } from "../../components/FeaturedCard";
 import styled from "styled-components";
 import { theme } from "../../styles/theme";
 
@@ -35,6 +36,7 @@ export const HomePage = () => {
   const { favorites, isFavorite } = useFavorites();
   const [showFavs, setShowFavs] = useState(false);
 
+  const featured = allDrinks.find((d) => d.featured);
   const displayed = showFavs
     ? allDrinks.filter((d) => isFavorite(d.name))
     : allDrinks;
@@ -47,6 +49,10 @@ export const HomePage = () => {
           categoria individual no menu.
         </p>
       </StyledDrinkList>
+
+      {!loading && !error && featured && !showFavs && (
+        <FeaturedCard drink={featured} />
+      )}
 
       {favorites.length > 0 && !loading && !error && (
         <StyledFilterBar>

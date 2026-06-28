@@ -14,6 +14,7 @@ export interface Drink {
   recipe: string;
   img: string[];
   hidden: boolean;
+  featured: boolean;
 }
 
 export interface Beverage {

@@ -32,6 +32,7 @@ function mapDrink(d: any, ingredients: { name: string; quantity: string; unit: I
     recipe:      d.recipe ?? "",
     img:         d.images ?? [],
     hidden:      d.hidden,
+    featured:    d.featured ?? false,
   };
 }
 
@@ -54,7 +55,7 @@ async function insertIngredients(
 router.get("/hidden", requireAuth, async (_req: Request, res: Response) => {
   try {
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE hidden = true ORDER BY name"
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE hidden = true ORDER BY name"
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.id));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.id] ?? [])));
@@ -69,7 +70,7 @@ router.get("/hidden", requireAuth, async (_req: Request, res: Response) => {
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE hidden = false ORDER BY name"
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE hidden = false ORDER BY name"
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.id));
     res.json(drinks.map((d) => mapDrink(d, ingMap[d.id] ?? [])));
@@ -86,7 +87,7 @@ router.get("/search", async (req: Request, res: Response) => {
   if (!q.trim()) return res.json([]);
   try {
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE hidden = false AND unaccent(lower(name)) ILIKE unaccent(lower($1))",
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE hidden = false AND unaccent(lower(name)) ILIKE unaccent(lower($1))",
       [`%${q}%`]
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.id));
@@ -125,7 +126,7 @@ router.get("/category/:category", async (req: Request, res: Response) => {
   const { category } = req.params;
   try {
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE hidden = false AND $1 = ANY(types) ORDER BY name",
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE hidden = false AND $1 = ANY(types) ORDER BY name",
       [category]
     );
     const ingMap = await fetchIngredients(drinks.map((d) => d.id));
@@ -142,7 +143,7 @@ router.get("/:name", async (req: Request, res: Response) => {
   try {
     const name = decodeURIComponent(req.params.name);
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE name = $1 AND hidden = false",
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE name = $1 AND hidden = false",
       [name]
     );
     if (!drinks.length) return res.status(404).json({ error: "Drink não encontrado" });
@@ -181,7 +182,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
     await client.query("COMMIT");
 
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE id = $1",
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE id = $1",
       [drinkId]
     );
     const ingMap = await fetchIngredients([drinkId]);
@@ -226,7 +227,7 @@ router.put("/:name", requireAuth, async (req: Request, res: Response) => {
     await client.query("COMMIT");
 
     const drinks = await query(
-      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE id = $1",
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE id = $1",
       [drinkId]
     );
     const ingMap = await fetchIngredients([drinkId]);
@@ -235,6 +236,43 @@ router.put("/:name", requireAuth, async (req: Request, res: Response) => {
     await client.query("ROLLBACK");
     console.error("[PUT /drinks/:name]", err);
     res.status(500).json({ error: "Erro ao atualizar drink" });
+  } finally {
+    client.release();
+  }
+});
+
+// ── PATCH /api/drinks/:name/featured (admin) ──────────────────────────────────
+
+router.patch("/:name/featured", requireAuth, async (req: Request, res: Response) => {
+  const name = decodeURIComponent(req.params.name);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const existing = await client.query("SELECT id, featured FROM drinks WHERE name = $1", [name]);
+    if (!existing.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Drink não encontrado" });
+    }
+    const { id, featured } = existing.rows[0];
+    if (!featured) {
+      // desafixar todos e fixar este
+      await client.query("UPDATE drinks SET featured = false WHERE featured = true");
+      await client.query("UPDATE drinks SET featured = true WHERE id = $1", [id]);
+    } else {
+      // já está fixado — desafixar
+      await client.query("UPDATE drinks SET featured = false WHERE id = $1", [id]);
+    }
+    await client.query("COMMIT");
+    const drinks = await query(
+      "SELECT id, name, types, images, recipe, hidden, featured FROM drinks WHERE id = $1",
+      [id]
+    );
+    const ingMap = await fetchIngredients([id]);
+    res.json(mapDrink(drinks[0], ingMap[id] ?? []));
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("[PATCH /drinks/:name/featured]", err);
+    res.status(500).json({ error: "Erro ao atualizar destaque" });
   } finally {
     client.release();
   }

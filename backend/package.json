@@ -9,7 +9,8 @@
     "migrate-images": "tsx seed/migrate-images.ts",
     "migrate-units": "tsx seed/migrate-units.ts",
     "migrate-abv": "tsx seed/migrate-abv.ts",
-    "migrate-pk": "tsx src/scripts/migrate-pk.ts"
+    "migrate-pk": "tsx src/scripts/migrate-pk.ts",
+    "add-featured": "tsx src/scripts/add-featured.ts"
   },
   "dependencies": {
     "cloudinary": "^2.3.1",

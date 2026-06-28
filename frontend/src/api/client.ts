@@ -41,6 +41,7 @@ export interface Drink {
   recipe: string;
   img: string[];
   hidden: boolean;
+  featured: boolean;
 }
 
 export interface Beverage {
@@ -64,6 +65,11 @@ export const api = {
     list: () => apiFetch<Drink[]>("/api/drinks"),
     get: (name: string) => apiFetch<Drink>(`/api/drinks/${encodeURIComponent(name)}`),
     hidden: () => apiFetch<Drink[]>("/api/drinks/hidden", { headers: authHeaders() }),
+    setFeatured: (name: string) =>
+      apiFetch<Drink>(`/api/drinks/${encodeURIComponent(name)}/featured`, {
+        method: "PATCH",
+        headers: authHeaders(),
+      }),
     search: (q: string) => apiFetch<Drink[]>(`/api/drinks/search?q=${encodeURIComponent(q)}`),
     byIngredient: (ingredient: string) =>
       apiFetch<Drink[]>(`/api/drinks/by-ingredient/${encodeURIComponent(ingredient)}`),

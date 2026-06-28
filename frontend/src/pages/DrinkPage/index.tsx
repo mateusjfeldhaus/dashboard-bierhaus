@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink, uploadImage, updateDrink } from "../../api/client";
+
 import { DrinkContext } from "../../providers/drinksContext";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -117,6 +118,16 @@ export const DrinkPage = () => {
                 {uploading ? "Enviando..." : "+ Foto"}
               </button>
             </>
+            <button
+              className={`upload-btn${drink.featured ? " pin-btn--active" : ""}`}
+              title={drink.featured ? "Desafixar da home" : "Fixar na home"}
+              onClick={async () => {
+                const updated = await api.drinks.setFeatured(drink.name);
+                setDrink(updated);
+              }}
+            >
+              {drink.featured ? "📌 Fixado" : "📌"}
+            </button>
             <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>
             {uploadError && <span className="upload-error">{uploadError}</span>}
           </div>
