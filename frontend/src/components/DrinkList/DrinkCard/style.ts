@@ -17,6 +17,7 @@ export const StyledDrinkCard = styled(Link)`
   }
 
   .card-image {
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
@@ -42,6 +43,36 @@ export const StyledDrinkCard = styled(Link)`
       justify-content: center;
       font-size: 2.5rem;
       opacity: 0.4;
+    }
+
+    .fav-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.45);
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1rem;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      padding: 0;
+    }
+
+    &:hover .fav-btn,
+    .fav-btn--active {
+      opacity: 1 !important;
+    }
+
+    .fav-btn--active {
+      color: #e05a5a;
     }
   }
 

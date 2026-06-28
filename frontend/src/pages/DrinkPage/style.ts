@@ -45,11 +45,35 @@ export const StyledDrinkPage = styled.article`
     margin-bottom: 1.75rem;
   }
 
+  .drink-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
   .drink-header h1 {
     font-size: clamp(1.6rem, 4vw, 2.4rem);
     font-weight: 700;
     line-height: 1.2;
-    margin-bottom: 0.6rem;
+  }
+
+  .fav-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.25);
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+    transition: color 0.15s, transform 0.15s;
+
+    &:hover { color: rgba(255, 255, 255, 0.6); transform: scale(1.15); }
+  }
+
+  .fav-btn--active {
+    color: #e05a5a !important;
   }
 
   .tags {

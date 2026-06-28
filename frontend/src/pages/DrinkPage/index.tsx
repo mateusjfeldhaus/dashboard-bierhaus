@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink, uploadImage, updateDrink } from "../../api/client";
 import { DrinkContext } from "../../providers/drinksContext";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
+import { useFavorites } from "../../hooks/useFavorites";
 import { DrinkTimer } from "../../components/DrinkTimer";
 import { DrinkPageSkeleton } from "../../components/Skeleton";
 import { StyledDrinkPage } from "./style";
@@ -33,6 +34,7 @@ export const DrinkPage = () => {
 
   const { allDrinks, loading: contextLoading } = useContext(DrinkContext);
   const isAdmin = useIsAdmin();
+  const { isFavorite, toggle: toggleFav } = useFavorites();
   const locState = location.state as { fromTab?: string; custoState?: object } | null;
   const fromTab = locState?.fromTab;
 
@@ -122,7 +124,16 @@ export const DrinkPage = () => {
       </div>
 
       <div className="drink-header">
-        <h1>{drink.name}</h1>
+        <div className="drink-title-row">
+          <h1>{drink.name}</h1>
+          <button
+            className={`fav-btn${isFavorite(drink.name) ? " fav-btn--active" : ""}`}
+            onClick={() => toggleFav(drink.name)}
+            aria-label={isFavorite(drink.name) ? "Remover dos favoritos" : "Favoritar"}
+          >
+            {isFavorite(drink.name) ? "♥" : "♡"}
+          </button>
+        </div>
         <div className="tags">
           {drink.type.map((t) => (
             <span key={t} className="tag">{t}</span>
