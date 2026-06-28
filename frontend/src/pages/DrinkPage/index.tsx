@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink } from "../../api/client";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { DrinkTimer } from "../../components/DrinkTimer";
+import { DrinkPageSkeleton } from "../../components/Skeleton";
 import { StyledDrinkPage } from "./style";
 import { NotFound } from "../404NotFound";
 
@@ -41,7 +42,7 @@ export const DrinkPage = () => {
       .catch(() => setDrink(null));
   }, [name]);
 
-  if (drink === undefined) return null;
+  if (drink === undefined) return <DrinkPageSkeleton />;
   if (drink === null) return <NotFound />;
 
   const publicUrl = process.env.PUBLIC_URL;

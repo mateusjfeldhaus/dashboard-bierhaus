@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { DrinkContext } from "../../providers/drinksContext";
 import { CATEGORIES } from "../../constants/categories";
 import { DrinkList } from "../../components/DrinkList";
+import { DrinkGridSkeleton } from "../../components/Skeleton";
 import { StyledDrinkList } from "../../styles/DrinkList";
 import { NotFound } from "../404NotFound";
 
@@ -21,7 +22,7 @@ const DESCRIPTIONS: Record<string, string> = {
 
 export const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
-  const { allDrinks } = useContext(DrinkContext);
+  const { allDrinks, loading } = useContext(DrinkContext);
 
   const config = CATEGORIES.find((c) => c.slug === category);
   if (!config) return <NotFound />;
@@ -33,7 +34,7 @@ export const CategoryPage = () => {
       <StyledDrinkList>
         <p>{DESCRIPTIONS[config.slug]}</p>
       </StyledDrinkList>
-      <DrinkList drinks={drinks} />
+      {loading ? <DrinkGridSkeleton count={6} /> : <DrinkList drinks={drinks} />}
     </>
   );
 };

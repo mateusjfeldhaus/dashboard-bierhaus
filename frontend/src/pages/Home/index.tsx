@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { StyledDrinkList } from "../../styles/DrinkList";
 import { DrinkList } from "../../components/DrinkList";
 import { DrinkContext } from "../../providers/drinksContext";
+import { DrinkGridSkeleton } from "../../components/Skeleton";
 
 export const HomePage = () => {
   const { allDrinks, loading, error } = useContext(DrinkContext);
@@ -16,7 +17,7 @@ export const HomePage = () => {
       </StyledDrinkList>
 
       {error && <p style={{ opacity: 0.5, fontSize: "0.9rem", padding: "0 1rem" }}>{error}</p>}
-      {!error && loading && <p style={{ opacity: 0.35, fontSize: "0.9rem", padding: "0 1rem" }}>Carregando...</p>}
+      {!error && loading && <DrinkGridSkeleton />}
       {!loading && !error && <DrinkList drinks={allDrinks} />}
     </>
   );

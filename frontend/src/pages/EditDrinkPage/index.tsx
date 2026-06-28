@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { api, uploadImage, updateDrink, IngredientUnit } from "../../api/client";
 import { UnitSelect } from "../../components/UnitSelect";
 import { CATEGORY_TYPES } from "../../constants/categories";
+import { DrinkPageSkeleton } from "../../components/Skeleton";
 import {
   StyledPage, StyledTitle, StyledForm, StyledSection, StyledLabel,
   StyledInput, StyledCategoryGrid, StyledCategoryChip,
@@ -99,7 +100,7 @@ export const EditDrinkPage = () => {
     } finally { setSubmitting(false); }
   };
 
-  if (loading) return null;
+  if (loading) return <DrinkPageSkeleton />;
 
   const getImageSrc = (src: string) =>
     src.startsWith("http") ? src : `${process.env.PUBLIC_URL}/assets/${src.split("/").pop()}`;
