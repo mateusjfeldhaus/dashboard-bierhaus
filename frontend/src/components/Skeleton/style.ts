@@ -16,9 +16,16 @@ const shimmerBg = `
   animation: ${shimmer} 1.4s infinite linear;
 `;
 
-export const StyledSkeletonBlock = styled.div`
+export const StyledSkeletonBlock = styled.div<{
+  $width?: string;
+  $height?: string;
+  $radius?: string;
+}>`
   ${shimmerBg}
   flex-shrink: 0;
+  width: ${({ $width }) => $width ?? "100%"};
+  height: ${({ $height }) => $height ?? "1rem"};
+  border-radius: ${({ $radius }) => $radius ?? "4px"};
 `;
 
 // ── Grid skeleton (HomePage / CategoryPage) ──────────────────────────

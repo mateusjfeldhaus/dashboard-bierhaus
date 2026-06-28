@@ -1,3 +1,4 @@
+import React from "react";
 import {
   StyledSkeletonBlock,
   StyledDrinkGridSkeleton,
@@ -10,18 +11,20 @@ export const SkeletonBlock = ({
   width = "100%",
   height = "1rem",
   radius = "4px",
+  style,
 }: {
   width?: string;
   height?: string;
   radius?: string;
-}) => <StyledSkeletonBlock style={{ width, height, borderRadius: radius }} />;
+  style?: React.CSSProperties;
+}) => <StyledSkeletonBlock $width={width} $height={height} $radius={radius} style={style} />;
 
 // Skeleton de um card individual (espelha DrinkCard)
 const CardSkeleton = () => (
   <StyledCardSkeleton>
     <div className="card-image-sk" />
     <div className="card-name-sk">
-      <StyledSkeletonBlock style={{ width: "70%", height: "0.75rem", borderRadius: "4px" }} />
+      <SkeletonBlock width="70%" height="0.75rem" />
     </div>
   </StyledCardSkeleton>
 );
@@ -39,25 +42,25 @@ export const DrinkGridSkeleton = ({ count = 10 }: { count?: number }) => (
 export const DrinkPageSkeleton = () => (
   <StyledDrinkPageSkeleton>
     <div className="top-bar-sk">
-      <StyledSkeletonBlock width="48px" height="0.85rem" />
+      <SkeletonBlock width="48px" height="0.85rem" />
     </div>
     <div className="header-sk">
-      <StyledSkeletonBlock width="55%" height="2rem" radius="6px" />
+      <SkeletonBlock width="55%" height="2rem" radius="6px" />
       <div className="tags-sk">
-        <StyledSkeletonBlock width="64px" height="1.1rem" radius="999px" />
-        <StyledSkeletonBlock width="48px" height="1.1rem" radius="999px" />
+        <SkeletonBlock width="64px" height="1.1rem" radius="999px" />
+        <SkeletonBlock width="48px" height="1.1rem" radius="999px" />
       </div>
     </div>
     <div className="body-sk">
       <div className="image-sk" />
       <div className="details-sk">
-        <StyledSkeletonBlock width="80px" height="0.65rem" radius="4px" />
+        <SkeletonBlock width="80px" height="0.65rem" />
         {[90, 75, 85, 60].map((w, i) => (
-          <StyledSkeletonBlock key={i} width={`${w}%`} height="0.9rem" radius="4px" />
+          <SkeletonBlock key={i} width={`${w}%`} height="0.9rem" />
         ))}
-        <StyledSkeletonBlock width="80px" height="0.65rem" radius="4px" style={{ marginTop: "1.5rem" } as any} />
+        <SkeletonBlock width="80px" height="0.65rem" style={{ marginTop: "1.5rem" }} />
         {[95, 80, 70].map((w, i) => (
-          <StyledSkeletonBlock key={i} width={`${w}%`} height="0.9rem" radius="4px" />
+          <SkeletonBlock key={i} width={`${w}%`} height="0.9rem" />
         ))}
       </div>
     </div>
