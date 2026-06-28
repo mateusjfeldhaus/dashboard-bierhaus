@@ -87,7 +87,28 @@ export const DrinkPage = () => {
     <StyledDrinkPage>
       <div className="top-bar">
         <button className="back-btn" onClick={handleBack}>Voltar</button>
-        {isAdmin && <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>}
+        {isAdmin && (
+          <div className="admin-actions">
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleUpload}
+              />
+              <button
+                className="upload-btn"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Enviando..." : "+ Foto"}
+              </button>
+            </>
+            <Link className="edit-btn" to={`/editar-drink/${encodeURIComponent(drink.name)}`}>✏ Editar</Link>
+          </div>
+        )}
       </div>
 
       <div className="drink-header">
@@ -107,25 +128,6 @@ export const DrinkPage = () => {
               ))
             : <div className="img-placeholder">{drink.name}</div>
           }
-          {isAdmin && (
-            <>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={handleUpload}
-              />
-              <button
-                className="upload-btn"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? "Enviando..." : "+ Foto"}
-              </button>
-            </>
-          )}
         </div>
 
         <div className="details">

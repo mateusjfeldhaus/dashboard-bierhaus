@@ -96,32 +96,26 @@ export const StyledDrinkPage = styled.article`
     aspect-ratio: 3 / 4;
   }
 
-  .upload-btn {
-    background: none;
-    border: 1px dashed rgba(255, 208, 110, 0.25);
-    color: ${theme.colors.primary};
-    border-radius: 8px;
-    font-size: 0.78rem;
-    font-family: inherit;
-    opacity: 0.45;
-    cursor: pointer;
-    padding: 0.5rem;
-    transition: opacity 0.15s, border-color 0.15s;
-    aspect-ratio: 3 / 4;
+  .admin-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.5rem;
+  }
 
-    &:hover:not(:disabled) {
-      opacity: 0.85;
-      border-color: rgba(255, 208, 110, 0.5);
-    }
+  .upload-btn {
+    color: ${theme.colors.primary};
+    font-size: 0.8rem;
+    opacity: 0.35;
+    background: none;
+    border: 1px solid rgba(255, 208, 110, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s;
 
-    &:disabled { cursor: wait; opacity: 0.25; }
-
-    @media (min-width: 768px) {
-      aspect-ratio: 4 / 5;
-    }
+    &:hover:not(:disabled) { opacity: 0.8; }
+    &:disabled { cursor: wait; opacity: 0.2; }
   }
 
   .img-placeholder {
