@@ -26,8 +26,10 @@ export const EditDrinkPage = () => {
           existingImages: drink.img,
         });
       })
-      .catch(() => navigate("/"));
+      .catch(() => navigate(-1));
   }, [decoded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleClose = () => navigate(-1);
 
   if (!initialData) return <DrinkPageSkeleton />;
 
@@ -46,7 +48,8 @@ export const EditDrinkPage = () => {
       title={`Editar: ${decoded}`}
       initialData={initialData}
       onSave={handleSave}
-      onSuccess={(name) => navigate(`/drink/${encodeURIComponent(name)}`)}
+      onSuccess={(n) => navigate(`/drink/${encodeURIComponent(n)}`)}
+      onClose={handleClose}
     />
   );
 };
