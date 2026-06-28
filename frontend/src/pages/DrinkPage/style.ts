@@ -157,6 +157,12 @@ export const StyledDrinkPage = styled.article`
     opacity: 0.9;
   }
 
+  .cost-hint {
+    font-size: 0.75rem;
+    opacity: 0.35;
+    margin-top: 0.25rem;
+  }
+
   .img-placeholder {
     width: 100%;
     aspect-ratio: 3 / 4;

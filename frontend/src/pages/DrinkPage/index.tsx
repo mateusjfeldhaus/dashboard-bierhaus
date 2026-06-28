@@ -28,6 +28,7 @@ export const DrinkPage = () => {
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [cost, setCost] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { allDrinks, loading: contextLoading } = useContext(DrinkContext);
@@ -60,6 +61,11 @@ export const DrinkPage = () => {
       .then(setDrink)
       .catch(() => setDrink(null));
   }, [name, allDrinks, contextLoading]);
+
+  useEffect(() => {
+    if (!drink || !isAdmin) return;
+    api.utils.cost(drink.name).then((r) => setCost(r.cost)).catch(() => {});
+  }, [drink?.name, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (drink === undefined) return <DrinkPageSkeleton />;
   if (drink === null) return <NotFound />;
@@ -155,6 +161,9 @@ export const DrinkPage = () => {
                 <li key={i}>{formatIngredient(ing.name, ing.quantity, ing.unit ?? "ml")}</li>
               ))}
             </ul>
+            {isAdmin && cost !== null && (
+              <p className="cost-hint">Custo estimado: R$ {cost.toFixed(2).replace(".", ",")}</p>
+            )}
           </section>
           <section>
             <h2>Receita</h2>
