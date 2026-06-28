@@ -10,7 +10,7 @@ import {
   StyledInput, StyledCategoryGrid, StyledCategoryChip,
   StyledIngredientRow, StyledStepRow, StyledAddBtn, StyledRemoveBtn,
   StyledImageGrid, StyledImageThumb,
-  StyledSubmitBtn, StyledError, StyledSuccess,
+  StyledSubmitBtn, StyledArchiveBtn, StyledError, StyledSuccess,
 } from "./style";
 
 interface Ingredient { name: string; quantity: string; unit: IngredientUnit; }
@@ -37,12 +37,13 @@ interface DrinkFormProps {
   initialData: DrinkFormInitialData;
   onSave: (payload: DrinkFormPayload) => Promise<void>;
   onSuccess: (drinkName: string) => void;
-  onClose?: () => void; // fornecido em modo edit → abre como modal
+  onClose?: () => void;    // fornecido em modo edit → abre como modal
+  onArchive?: () => Promise<void>; // arquivar (hidden: true)
 }
 
 const EMPTY_INGREDIENT: Ingredient = { name: "", quantity: "", unit: "ml" };
 
-export const DrinkForm = ({ mode, title, initialData, onSave, onSuccess, onClose }: DrinkFormProps) => {
+export const DrinkForm = ({ mode, title, initialData, onSave, onSuccess, onClose, onArchive }: DrinkFormProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const isModal = !!onClose;
 
@@ -57,6 +58,8 @@ export const DrinkForm = ({ mode, title, initialData, onSave, onSuccess, onClose
   const [submitting, setSubmitting]         = useState(false);
   const [error, setError]                   = useState<string | null>(null);
   const [success, setSuccess]               = useState(false);
+  const [archiveConfirm, setArchiveConfirm] = useState(false);
+  const [archiving, setArchiving]           = useState(false);
 
   // ESC fecha o modal
   useEffect(() => {
@@ -267,9 +270,37 @@ export const DrinkForm = ({ mode, title, initialData, onSave, onSuccess, onClose
       {error   && <StyledError>{error}</StyledError>}
       {success && <StyledSuccess>{mode === "create" ? "Drink criado! Redirecionando..." : "Salvo!"}</StyledSuccess>}
 
-      <StyledSubmitBtn type="submit" disabled={submitting || success}>
-        {btnLabel}
-      </StyledSubmitBtn>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
+        <StyledSubmitBtn type="submit" disabled={submitting || success}>
+          {btnLabel}
+        </StyledSubmitBtn>
+
+        {onArchive && (
+          archiveConfirm ? (
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <span style={{ fontSize: "0.78rem", opacity: 0.5 }}>Confirmar?</span>
+              <StyledArchiveBtn
+                type="button"
+                $danger
+                disabled={archiving}
+                onClick={async () => {
+                  setArchiving(true);
+                  await onArchive();
+                }}
+              >
+                {archiving ? "Arquivando..." : "Sim, arquivar"}
+              </StyledArchiveBtn>
+              <StyledArchiveBtn type="button" $danger={false} onClick={() => setArchiveConfirm(false)}>
+                Cancelar
+              </StyledArchiveBtn>
+            </div>
+          ) : (
+            <StyledArchiveBtn type="button" $danger={false} onClick={() => setArchiveConfirm(true)}>
+              Arquivar drink
+            </StyledArchiveBtn>
+          )
+        )}
+      </div>
     </StyledForm>
   );
 

@@ -63,6 +63,7 @@ export const api = {
   drinks: {
     list: () => apiFetch<Drink[]>("/api/drinks"),
     get: (name: string) => apiFetch<Drink>(`/api/drinks/${encodeURIComponent(name)}`),
+    hidden: () => apiFetch<Drink[]>("/api/drinks/hidden", { headers: authHeaders() }),
     search: (q: string) => apiFetch<Drink[]>(`/api/drinks/search?q=${encodeURIComponent(q)}`),
     byIngredient: (ingredient: string) =>
       apiFetch<Drink[]>(`/api/drinks/by-ingredient/${encodeURIComponent(ingredient)}`),

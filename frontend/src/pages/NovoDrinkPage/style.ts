@@ -300,6 +300,22 @@ export const StyledSubmitBtn = styled.button`
   &:disabled { opacity: 0.3; cursor: not-allowed; }
 `;
 
+export const StyledArchiveBtn = styled.button<{ $danger: boolean }>`
+  background: none;
+  border: 1px solid ${({ $danger }) => $danger ? "rgba(255,100,100,0.35)" : "rgba(255,208,110,0.15)"};
+  color: ${({ $danger }) => $danger ? "#ff7070" : theme.colors.primary};
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  opacity: ${({ $danger }) => $danger ? 0.75 : 0.35};
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) { opacity: 1; }
+  &:disabled { opacity: 0.2; cursor: not-allowed; }
+`;
+
 export const StyledError = styled.p`
   color: #ff7070;
   font-size: 0.82rem;

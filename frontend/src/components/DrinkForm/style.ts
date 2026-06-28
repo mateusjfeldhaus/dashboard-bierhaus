@@ -21,6 +21,7 @@ export {
   StyledImageThumb,
   StyledImagePreview,
   StyledSubmitBtn,
+  StyledArchiveBtn,
   StyledError,
   StyledSuccess,
 } from "../../pages/NovoDrinkPage/style";

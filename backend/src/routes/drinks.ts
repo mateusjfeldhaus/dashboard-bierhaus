@@ -49,6 +49,21 @@ async function insertIngredients(
   }
 }
 
+// ── GET /api/drinks/hidden (admin) ────────────────────────────────────────────
+
+router.get("/hidden", requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const drinks = await query(
+      "SELECT id, name, types, images, recipe, hidden FROM drinks WHERE hidden = true ORDER BY name"
+    );
+    const ingMap = await fetchIngredients(drinks.map((d) => d.id));
+    res.json(drinks.map((d) => mapDrink(d, ingMap[d.id] ?? [])));
+  } catch (err) {
+    console.error("[GET /drinks/hidden]", err);
+    res.status(500).json({ error: "Erro ao buscar drinks arquivados" });
+  }
+});
+
 // ── GET /api/drinks ───────────────────────────────────────────────────────────
 
 router.get("/", async (_req: Request, res: Response) => {

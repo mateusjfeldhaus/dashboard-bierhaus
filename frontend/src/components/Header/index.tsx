@@ -26,6 +26,7 @@ const adminLinks = [
   { path: "/utils", label: "Utilidades" },
   { path: "/precos", label: "Precos" },
   { path: "/novo-drink", label: "Novo Drink" },
+  { path: "/arquivados", label: "Arquivados" },
   { path: "/stats", label: "Estatísticas" },
 ];
 

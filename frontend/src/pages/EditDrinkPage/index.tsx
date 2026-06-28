@@ -42,6 +42,11 @@ export const EditDrinkPage = () => {
     });
   };
 
+  const handleArchive = async () => {
+    await updateDrink(decoded, { hidden: true });
+    navigate("/");
+  };
+
   return (
     <DrinkForm
       mode="edit"
@@ -50,6 +55,7 @@ export const EditDrinkPage = () => {
       onSave={handleSave}
       onSuccess={(n) => navigate(`/drink/${encodeURIComponent(n)}`)}
       onClose={handleClose}
+      onArchive={handleArchive}
     />
   );
 };
