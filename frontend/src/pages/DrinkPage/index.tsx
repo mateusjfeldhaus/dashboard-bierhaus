@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { api, Drink } from "../../api/client";
+import { api, Drink, uploadImage, updateDrink } from "../../api/client";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { DrinkTimer } from "../../components/DrinkTimer";
 import { DrinkPageSkeleton } from "../../components/Skeleton";
@@ -25,6 +25,8 @@ export const DrinkPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [drink, setDrink] = useState<Drink | null | undefined>(undefined);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = useIsAdmin();
   const locState = location.state as { fromTab?: string; custoState?: object } | null;
@@ -48,6 +50,22 @@ export const DrinkPage = () => {
   const publicUrl = process.env.PUBLIC_URL;
   const getImageSrc = (src: string) =>
     src.startsWith("http") ? src : `${publicUrl}/assets/${src.split("/").pop()}`;
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const newUrls = await Promise.all(files.map(uploadImage));
+      const updated = await updateDrink(drink.name, { images: [...drink.img, ...newUrls] });
+      setDrink(updated);
+    } catch {
+      // silently fail — user can retry via EditDrinkPage
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   return (
     <StyledDrinkPage>
@@ -73,6 +91,25 @@ export const DrinkPage = () => {
               ))
             : <div className="img-placeholder">{drink.name}</div>
           }
+          {isAdmin && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleUpload}
+              />
+              <button
+                className="upload-btn"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Enviando..." : "+ Foto"}
+              </button>
+            </>
+          )}
         </div>
 
         <div className="details">
