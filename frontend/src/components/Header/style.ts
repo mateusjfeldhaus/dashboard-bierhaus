@@ -108,7 +108,7 @@ export const StyledAdminDropdown = styled.div<{ $open: boolean }>`
   overflow: hidden;
   z-index: 200;
 
-  a {
+  a, .logout-btn {
     display: block;
     padding: 0.65rem 1rem;
     font-size: 0.85rem;
@@ -117,6 +117,14 @@ export const StyledAdminDropdown = styled.div<{ $open: boolean }>`
     white-space: nowrap;
     border-bottom: 1px solid rgba(255, 208, 110, 0.08);
     transition: background 0.15s, opacity 0.15s;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+    cursor: pointer;
 
     &:last-child {
       border-bottom: none;
@@ -195,6 +203,15 @@ export const StyledMobileNav = styled.nav<{ isOpen: boolean }>`
   .mobile-admin-link {
     padding-left: 0.75rem;
     font-size: 0.95rem !important;
+  }
+
+  .logout-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
   }
 `;
 

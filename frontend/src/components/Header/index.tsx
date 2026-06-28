@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CATEGORIES } from "../../constants/categories";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
+import { clearToken } from "../../api/client";
 import {
   StyledHeader,
   StyledMobileControls,
@@ -35,6 +36,13 @@ export const Header = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearToken();
+    setIsAdminOpen(false);
+    setIsMenuOpen(false);
+    navigate("/");
+  };
   const adminRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -89,6 +97,7 @@ export const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              <button className="logout-btn" onClick={handleLogout}>Sair</button>
             </StyledAdminDropdown>
           </StyledAdminMenu>
         )}
@@ -160,6 +169,11 @@ export const Header = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button className="mobile-admin-link logout-btn" onClick={handleLogout}>
+                  Sair
+                </button>
+              </li>
             </>
           )}
         </ul>
