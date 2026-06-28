@@ -1,0 +1,20 @@
+// Estilos compartilhados entre NovoDrinkPage e EditDrinkPage via DrinkForm
+export {
+  StyledPage,
+  StyledTitle,
+  StyledForm,
+  StyledSection,
+  StyledLabel,
+  StyledInput,
+  StyledTextarea,
+  StyledCategoryGrid,
+  StyledCategoryChip,
+  StyledIngredientRow,
+  StyledStepRow,
+  StyledAddBtn,
+  StyledRemoveBtn,
+  StyledImagePreview,
+  StyledSubmitBtn,
+  StyledError,
+  StyledSuccess,
+} from "../../pages/NovoDrinkPage/style";
