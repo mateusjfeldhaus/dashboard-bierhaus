@@ -9,6 +9,14 @@ import authRouter from "./routes/auth";
 
 dotenv.config();
 
+const REQUIRED_ENV = ["DATABASE_URL", "JWT_SECRET", "ADMIN_PASSWORD"];
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`[startup] Variável de ambiente obrigatória não definida: ${key}`);
+    process.exit(1);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
