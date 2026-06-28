@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink, uploadImage, updateDrink } from "../../api/client";
+import { DrinkContext } from "../../providers/drinksContext";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { DrinkTimer } from "../../components/DrinkTimer";
 import { DrinkPageSkeleton } from "../../components/Skeleton";
@@ -28,6 +29,7 @@ export const DrinkPage = () => {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const { allDrinks, loading: contextLoading } = useContext(DrinkContext);
   const isAdmin = useIsAdmin();
   const locState = location.state as { fromTab?: string; custoState?: object } | null;
   const fromTab = locState?.fromTab;
@@ -39,10 +41,24 @@ export const DrinkPage = () => {
 
   useEffect(() => {
     if (!name) return;
-    api.drinks.get(decodeURIComponent(name))
+    const decoded = decodeURIComponent(name);
+
+    // 1. Já está no contexto → renderiza na hora, sem request
+    const cached = allDrinks.find((d) => d.name === decoded);
+    if (cached) {
+      setDrink(cached);
+      return;
+    }
+
+    // 2. Contexto ainda carregando → aguarda próximo render
+    if (contextLoading) return;
+
+    // 3. Contexto carregado mas drink não encontrado (URL direta, drink hidden)
+    //    → busca na API como fallback
+    api.drinks.get(decoded)
       .then(setDrink)
       .catch(() => setDrink(null));
-  }, [name]);
+  }, [name, allDrinks, contextLoading]);
 
   if (drink === undefined) return <DrinkPageSkeleton />;
   if (drink === null) return <NotFound />;
