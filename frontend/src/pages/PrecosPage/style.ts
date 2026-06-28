@@ -62,26 +62,17 @@ export const StyledBeverageList = styled.ul`
   gap: 0;
 `;
 
-export const StyledBeverageItem = styled.li<{ $modified: boolean }>`
+export const StyledBeverageItem = styled.li`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.65rem 0;
   border-bottom: 1px solid rgba(255, 208, 110, 0.08);
 
-  .modified-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: ${theme.colors.primary};
-    flex-shrink: 0;
-    opacity: ${({ $modified }) => ($modified ? 1 : 0)};
-  }
-
   .name {
     flex: 1;
     font-size: 0.95rem;
-    opacity: ${({ $modified }) => ($modified ? 1 : 0.75)};
+    opacity: 0.75;
     color: ${theme.colors.primary};
     text-decoration: none;
     transition: opacity 0.15s;

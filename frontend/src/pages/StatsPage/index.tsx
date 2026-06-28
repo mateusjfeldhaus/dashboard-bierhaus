@@ -125,9 +125,9 @@ export const StatsPage = () => {
               <span className="bar-count alc-value">
                 {mlAlcohol > 0 ? `${mlAlcohol.toFixed(1)} mL` : "—"}
               </span>
-              <span className={`alc-badge alc-${alcoholLabel(mlAlcohol).replace(" ", "-")}`}>
-                {alcoholLabel(mlAlcohol)}
-              </span>
+              {(() => { const label = alcoholLabel(mlAlcohol); return (
+                <span className={`alc-badge alc-${label.replace(" ", "-")}`}>{label}</span>
+              ); })()}
             </div>
           ))}
         </div>

@@ -80,7 +80,7 @@ export const PrecosPage = () => {
 
       <StyledBeverageList>
         {filtered.map((b) => (
-          <StyledBeverageItem key={b.name} $modified={false}>
+          <StyledBeverageItem key={b.name}>
             <Link className="name" to={`/ingrediente/${encodeURIComponent(b.name)}`}>
               {b.name}
             </Link>
