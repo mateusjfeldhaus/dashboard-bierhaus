@@ -87,6 +87,14 @@ export const StyledDrinkPage = styled.article`
     gap: 0.75rem;
   }
 
+  .img-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+
+    &:hover .remove-img-btn { opacity: 1; }
+  }
+
   .images img {
     flex: 1;
     min-width: 0;
@@ -94,6 +102,31 @@ export const StyledDrinkPage = styled.article`
     border-radius: 10px;
     object-fit: cover;
     aspect-ratio: 3 / 4;
+  }
+
+  .img-wrap img {
+    width: 100%;
+    display: block;
+  }
+
+  .remove-img-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .admin-actions {

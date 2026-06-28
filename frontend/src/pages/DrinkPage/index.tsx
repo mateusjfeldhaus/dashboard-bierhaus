@@ -128,7 +128,20 @@ export const DrinkPage = () => {
         <div className="images">
           {drink.img.length > 0
             ? drink.img.map((src, i) => (
-                <img key={i} src={getImageSrc(src)} alt={`${drink.name} ${i + 1}`} />
+                <div key={i} className={isAdmin ? "img-wrap" : undefined}>
+                  <img src={getImageSrc(src)} alt={`${drink.name} ${i + 1}`} />
+                  {isAdmin && (
+                    <button
+                      className="remove-img-btn"
+                      title="Remover foto"
+                      onClick={async () => {
+                        const newImgs = drink.img.filter((_, idx) => idx !== i);
+                        const updated = await updateDrink(drink.name, { images: newImgs });
+                        setDrink(updated);
+                      }}
+                    >✕</button>
+                  )}
+                </div>
               ))
             : <div className="img-placeholder">{drink.name}</div>
           }
