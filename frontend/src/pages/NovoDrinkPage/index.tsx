@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadImage, createDrink, IngredientUnit } from "../../api/client";
 import { UnitSelect } from "../../components/UnitSelect";
@@ -49,7 +49,13 @@ export const NovoDrinkPage = () => {
     setImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
   };
 
+  useEffect(() => {
+    return () => imagePreviews.forEach(URL.revokeObjectURL);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const removePreview = (i: number) => {
+    URL.revokeObjectURL(imagePreviews[i]);
     setImageFiles((prev) => prev.filter((_, idx) => idx !== i));
     setImagePreviews((prev) => prev.filter((_, idx) => idx !== i));
   };

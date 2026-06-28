@@ -62,6 +62,11 @@ export const EditDrinkPage = () => {
   const addStep = () => setSteps((prev) => [...prev, ""]);
   const removeStep = (i: number) => setSteps((prev) => prev.filter((_, idx) => idx !== i));
 
+  useEffect(() => {
+    return () => newPreviews.forEach(URL.revokeObjectURL);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const removeExistingImage = (i: number) => setExistingImages((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
