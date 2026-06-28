@@ -22,7 +22,7 @@ router.get("/ingredients/summary", async (_req: Request, res: Response) => {
                       THEN di.quantity::numeric
                       ELSE 1 END) AS total
       FROM drink_ingredients di
-      JOIN drinks d ON d.name = di.drink_name
+      JOIN drinks d ON d.id = di.drink_id
       WHERE d.hidden = false
       GROUP BY di.ingredient_name
       ORDER BY total DESC
@@ -42,7 +42,7 @@ router.get("/cost/:drinkName", async (req: Request, res: Response) => {
       `SELECT d.name,
               ROUND(SUM(${COST_EXPR})::numeric, 2) AS cost
        FROM drinks d
-       LEFT JOIN drink_ingredients di ON di.drink_name = d.name
+       LEFT JOIN drink_ingredients di ON di.drink_id = d.id
        LEFT JOIN beverages b ON b.name = di.ingredient_name
        WHERE d.hidden = false AND d.name = $1
        GROUP BY d.name`,
@@ -63,7 +63,7 @@ router.get("/costs", async (_req: Request, res: Response) => {
       SELECT d.name,
              ROUND(SUM(${COST_EXPR})::numeric, 2) AS cost
       FROM drinks d
-      LEFT JOIN drink_ingredients di ON di.drink_name = d.name
+      LEFT JOIN drink_ingredients di ON di.drink_id = d.id
       LEFT JOIN beverages b ON b.name = di.ingredient_name
       WHERE d.hidden = false
       GROUP BY d.name

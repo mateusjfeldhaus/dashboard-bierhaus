@@ -7,6 +7,7 @@ export interface DrinkIngredient {
 }
 
 export interface Drink {
+  id: number;
   name: string;
   type: string[];
   ingredients: DrinkIngredient[];
