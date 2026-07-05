@@ -3,6 +3,20 @@ import { query } from "../db";
 
 const router = Router();
 
+// Junta ingredient → beverage pelo nome mais longo que contenha
+// um ao outro (case-insensitive, sem acento).
+// LATERAL garante no máximo 1 beverage por ingrediente.
+const BEV_JOIN = `
+  LEFT JOIN LATERAL (
+    SELECT b2.*
+    FROM beverages b2
+    WHERE unaccent(lower(di.ingredient_name)) LIKE '%' || unaccent(lower(b2.name)) || '%'
+       OR unaccent(lower(b2.name)) LIKE '%' || unaccent(lower(di.ingredient_name)) || '%'
+    ORDER BY length(b2.name) DESC
+    LIMIT 1
+  ) b ON true
+`;
+
 // SQL compartilhado para calcular custo por ingrediente
 const COST_EXPR = `
   CASE
@@ -34,7 +48,7 @@ router.get("/ingredients/summary", async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/utils/cost/:drinkName — custo de um drink específico (cálculo no SQL)
+// GET /api/utils/cost/:drinkName — custo de um drink específico
 router.get("/cost/:drinkName", async (req: Request, res: Response) => {
   const drinkName = decodeURIComponent(req.params.drinkName);
   try {
@@ -43,7 +57,7 @@ router.get("/cost/:drinkName", async (req: Request, res: Response) => {
               ROUND(SUM(${COST_EXPR})::numeric, 2) AS cost
        FROM drinks d
        LEFT JOIN drink_ingredients di ON di.drink_id = d.id
-       LEFT JOIN beverages b ON b.name = di.ingredient_name
+       ${BEV_JOIN}
        WHERE d.hidden = false AND d.name = $1
        GROUP BY d.name`,
       [drinkName]
@@ -56,7 +70,7 @@ router.get("/cost/:drinkName", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/utils/costs — custo de todos os drinks em uma única query
+// GET /api/utils/costs — custo de todos os drinks
 router.get("/costs", async (_req: Request, res: Response) => {
   try {
     const rows = await query(`
@@ -64,7 +78,7 @@ router.get("/costs", async (_req: Request, res: Response) => {
              ROUND(SUM(${COST_EXPR})::numeric, 2) AS cost
       FROM drinks d
       LEFT JOIN drink_ingredients di ON di.drink_id = d.id
-      LEFT JOIN beverages b ON b.name = di.ingredient_name
+      ${BEV_JOIN}
       WHERE d.hidden = false
       GROUP BY d.name
       ORDER BY cost DESC

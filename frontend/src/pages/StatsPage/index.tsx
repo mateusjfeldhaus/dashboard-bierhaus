@@ -8,14 +8,47 @@ import { StyledStatsPage } from "./style";
 
 const ML_PER_DASH = 0.9;
 
+/** Remove acentos e converte para lowercase */
+function norm(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+/** Escapa caracteres especiais de regex */
+function esc(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Verifica se `needle` aparece como palavra inteira em `haystack` */
+function wordMatch(haystack: string, needle: string): boolean {
+  return new RegExp(`(^|[\\s,])${esc(needle)}([\\s,]|$)`).test(haystack);
+}
+
 function findAbv(ingName: string, abvMap: Record<string, number>): number {
-  const lower = ingName.toLowerCase();
-  // 1. match exato
-  if (abvMap[lower] !== undefined) return abvMap[lower];
-  // 2. fallback: nome do beverage é substring do ingrediente (ex: "Whisky" dentro de "Scotch Whisky")
+  const normIng = norm(ingName);
+
+  // 1. match exato (normalizado)
   for (const [bev, abv] of Object.entries(abvMap)) {
-    if (lower.includes(bev) || bev.includes(lower)) return abv;
+    if (norm(bev) === normIng) return abv;
   }
+
+  // 2. palavra inteira — escolhe o beverage mais longo que faz match
+  const wordMatches = Object.entries(abvMap)
+    .filter(([bev]) => {
+      const nb = norm(bev);
+      return wordMatch(normIng, nb) || wordMatch(nb, normIng);
+    })
+    .sort((a, b) => b[0].length - a[0].length);
+  if (wordMatches.length) return wordMatches[0][1];
+
+  // 3. substring fallback (mais permissivo, último recurso)
+  const subMatches = Object.entries(abvMap)
+    .filter(([bev]) => {
+      const nb = norm(bev);
+      return normIng.includes(nb) || nb.includes(normIng);
+    })
+    .sort((a, b) => b[0].length - a[0].length);
+  if (subMatches.length) return subMatches[0][1];
+
   return 0;
 }
 
