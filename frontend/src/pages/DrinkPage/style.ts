@@ -181,6 +181,20 @@ export const StyledDrinkPage = styled.article`
     opacity: 0.9;
   }
 
+  .alc-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    margin-top: 0.25rem;
+  }
+
+  .alc-badge.alc-médio      { background: rgba(255, 180, 50, 0.12);  color: #ffb432; }
+  .alc-badge.alc-forte      { background: rgba(220, 80, 80, 0.12);   color: #e06060; }
+  .alc-badge.alc-sem-álcool { background: rgba(255,255,255,0.06);    color: rgba(255,255,255,0.3); }
+
   .cost-hint {
     font-size: 0.75rem;
     opacity: 0.35;

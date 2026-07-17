@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef, useContext, useMemo } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { api, Drink, uploadImage, updateDrink } from "../../api/client";
-
+import { useBeverages } from "../../hooks/useBeverages";
+import { buildAbvMap, calcDrinkAlcohol } from "../../utils/alcohol";
 import { DrinkContext } from "../../providers/drinksContext";
 import { useIsAdmin } from "../../hooks/useIsAdmin";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -36,6 +37,7 @@ export const DrinkPage = () => {
   const { allDrinks, loading: contextLoading } = useContext(DrinkContext);
   const isAdmin = useIsAdmin();
   const { isFavorite, toggle: toggleFav } = useFavorites();
+  const { beverages } = useBeverages();
   const locState = location.state as { fromTab?: string; custoState?: object } | null;
   const fromTab = locState?.fromTab;
 
@@ -69,6 +71,11 @@ export const DrinkPage = () => {
     if (!drink || !isAdmin) return;
     api.utils.cost(drink.name).then((r) => setCost(r.cost)).catch(() => {});
   }, [drink?.name, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const alcoholInfo = useMemo(() => {
+    if (!drink || !beverages.length) return null;
+    return calcDrinkAlcohol(drink.ingredients, buildAbvMap(beverages));
+  }, [drink, beverages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (drink === undefined) return <DrinkPageSkeleton />;
   if (drink === null) return <NotFound />;
@@ -183,6 +190,11 @@ export const DrinkPage = () => {
                 <li key={i}>{formatIngredient(ing.name, ing.quantity, ing.unit ?? "ml")}</li>
               ))}
             </ul>
+            {alcoholInfo && (
+              <span className={`alc-badge alc-${alcoholInfo.label.replace(" ", "-")}`}>
+                {alcoholInfo.label} · {alcoholInfo.mlAlcohol} mL álcool
+              </span>
+            )}
             {isAdmin && cost !== null && (
               <p className="cost-hint">Custo estimado: R$ {cost.toFixed(2).replace(".", ",")}</p>
             )}

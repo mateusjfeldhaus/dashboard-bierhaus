@@ -1,85 +1,17 @@
 import { useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { DrinkContext } from "../../providers/drinksContext";
-import { DrinkIngredient } from "../../api/client";
 import { useBeverages } from "../../hooks/useBeverages";
 import { CATEGORY_TYPES } from "../../constants/categories";
 import { StyledStatsPage } from "./style";
 
-const ML_PER_DASH = 0.9;
-
-/** Remove acentos e converte para lowercase */
-function norm(s: string): string {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-}
-
-/** Escapa caracteres especiais de regex */
-function esc(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** Verifica se `needle` aparece como palavra inteira em `haystack` */
-function wordMatch(haystack: string, needle: string): boolean {
-  return new RegExp(`(^|[\\s,])${esc(needle)}([\\s,]|$)`).test(haystack);
-}
-
-function findAbv(ingName: string, abvMap: Record<string, number>): number {
-  const normIng = norm(ingName);
-
-  // 1. match exato (normalizado)
-  for (const [bev, abv] of Object.entries(abvMap)) {
-    if (norm(bev) === normIng) return abv;
-  }
-
-  // 2. palavra inteira — escolhe o beverage mais longo que faz match
-  const wordMatches = Object.entries(abvMap)
-    .filter(([bev]) => {
-      const nb = norm(bev);
-      return wordMatch(normIng, nb) || wordMatch(nb, normIng);
-    })
-    .sort((a, b) => b[0].length - a[0].length);
-  if (wordMatches.length) return wordMatches[0][1];
-
-  // 3. substring fallback (mais permissivo, último recurso)
-  const subMatches = Object.entries(abvMap)
-    .filter(([bev]) => {
-      const nb = norm(bev);
-      return normIng.includes(nb) || nb.includes(normIng);
-    })
-    .sort((a, b) => b[0].length - a[0].length);
-  if (subMatches.length) return subMatches[0][1];
-
-  return 0;
-}
-
-function calcAlcoholMl(ing: DrinkIngredient, abvMap: Record<string, number>): number {
-  const abv = findAbv(ing.name, abvMap);
-  if (!abv) return 0;
-  const qty = parseFloat(ing.quantity);
-  if (isNaN(qty)) return 0;
-  if (ing.unit === "dash") return qty * ML_PER_DASH * abv;
-  if (ing.unit === "ml")   return qty * abv;
-  return 0;
-}
-
-function alcoholLabel(ml: number): string {
-  if (ml === 0)    return "sem álcool";
-  if (ml <= 22.5)  return "médio";
-  return "forte";
-}
+import { buildAbvMap, calcAlcoholMl, alcoholLabel } from "../../utils/alcohol";
 
 export const StatsPage = () => {
   const { allDrinks } = useContext(DrinkContext);
   const { beverages } = useBeverages();
 
-  // Monta mapa name (lowercase) → abv a partir dos dados da API
-  const abvMap = useMemo(() => {
-    const map: Record<string, number> = {};
-    beverages.forEach((b) => {
-      if (b.abv > 0) map[b.name.toLowerCase()] = b.abv;
-    });
-    return map;
-  }, [beverages]);
+  const abvMap = useMemo(() => buildAbvMap(beverages), [beverages]);
 
   const stats = useMemo(() => {
     const byCategory = CATEGORY_TYPES.map((cat) => ({
